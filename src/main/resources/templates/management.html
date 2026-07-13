@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Quản lý nhân viên')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('management')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Quản lý hồ sơ nhân viên')}"></header>
+            <div class="container">
+                
+                <!-- Page Action Bar -->
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="margin:0"><i class="ph-light ph-users" style="color: var(--primary);"></i> Danh sách nhân sự toàn công ty</h3>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Xem danh sách, quản lý quyền hạn và phòng ban.</p>
+                    </div>
+                    <button onclick="openAddModal()" class="btn btn-primary">
+                        <i class="ph-light ph-user-plus"></i>
+                        <span>THÊM NHÂN VIÊN</span>
+                    </button>
+                </div>
+                
+                <!-- Employees Table List -->
+                <div class="card-outer">
+                    <div class="card-inner">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mã NV</th>
+                                        <th>Họ và tên</th>
+                                        <th>Địa chỉ Email</th>
+                                        <th>Bộ phận</th>
+                                        <th>Quyền hạn</th>
+                                        <th>Trạng thái</th>
+                                        <th style="text-align: right;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="e : ${employees}">
+                                        <td th:text="${e.id}" style="font-family: monospace; font-weight: 700; color: var(--primary);">EMP001</td>
+                                        <td th:text="${e.name}" style="font-weight:600">Name</td>
+                                        <td th:text="${e.email}">Email</td>
+                                        <td th:text="${e.department}">Department</td>
+                                        <td>
+                                            <span th:text="${e.role == 'Manager' ? 'Quản lý' : 'Nhân viên'}" 
+                                                  th:class="${e.role == 'Manager' ? 'metric-badge badge-info' : 'metric-badge badge-ghost'}"
+                                                  style="padding: 3px 8px; font-size: 11px;">Role</span>
+                                        </td>
+                                        <td>
+                                            <span class="metric-badge badge-success" th:text="${e.status}">Active</span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <form th:action="@{/management/delete}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xoá nhân viên này khỏi hệ thống?')">
+                                                <input type="hidden" name="id" th:value="${e.id}">
+                                                <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">
+                                                    <i class="ph-light ph-trash"></i> Xoá
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(employees)}">
+                                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px 0;">
+                                            Chưa có hồ sơ nhân viên nào.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add Employee Modal Overlay -->
+    <div id="add-employee-modal" class="modal-overlay hidden" onclick="closeAddModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin-bottom: 24px; justify-content: space-between; display: flex;">
+                <span><i class="ph-light ph-user-plus" style="color: var(--primary);"></i> Thêm nhân sự mới</span>
+                <button onclick="closeAddModal()" class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px; border:none; background:none; cursor:pointer;"><i class="ph-light ph-x" style="font-size: 18px;"></i></button>
+            </h3>
+            
+            <form th:action="@{/management/add}" method="post">
+                <div class="input-group">
+                    <label>Họ và tên nhân viên</label>
+                    <input type="text" name="name" placeholder="Ví dụ: Nguyễn Văn A" required>
+                </div>
+                <div class="input-group">
+                    <label>Địa chỉ Email doanh nghiệp</label>
+                    <input type="email" name="email" placeholder="email@demo.local" required>
+                </div>
+                <div class="grid grid-cols-2" style="gap: 16px;">
+                    <div class="input-group">
+                        <label>Phòng ban</label>
+                        <select name="department" required>
+                            <option value="Kỹ thuật">Kỹ thuật</option>
+                            <option value="Kinh doanh">Kinh doanh</option>
+                            <option value="Nhân sự">Nhân sự</option>
+                            <option value="Tài chính">Tài chính</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Quyền hệ thống</label>
+                        <select name="role" required>
+                            <option value="Employee">Nhân viên (Employee)</option>
+                            <option value="Manager">Quản lý (Manager)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddModal()" class="btn btn-ghost">Huỷ bỏ</button>
+                    <button type="submit" class="btn btn-primary">Xác nhận thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openAddModal() {
+            document.getElementById('add-employee-modal').classList.remove('hidden');
+        }
+        function closeAddModal() {
+            document.getElementById('add-employee-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

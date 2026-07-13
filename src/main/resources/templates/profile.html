@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Hồ sơ cá nhân')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('profile')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Hồ sơ của tôi')}"></header>
+            <div class="container" style="max-width: 900px;">
+                
+                <div class="card-outer">
+                    <div class="card-inner">
+                        <!-- Profile Header -->
+                        <div style="display:flex; gap:32px; align-items:center; margin-bottom:40px; padding-bottom:32px; border-bottom:1px solid var(--border);">
+                            <div class="avatar" style="width:80px; height:80px; font-size:32px;" th:text="${#strings.substring(ui.displayName,0,1)}">U</div>
+                            <div>
+                                <h2 style="margin:0" th:text="${ui.displayName}">Name</h2>
+                                <p style="color:var(--primary); font-weight:600; text-transform:uppercase; font-size:12px; letter-spacing:1px; margin-top:4px;" th:text="${ui.role == 'manager' ? 'Quyền quản trị viên' : 'Nhân viên công ty'}">Role</p>
+                                <p style="color:var(--text-muted); font-size:13px; margin-top:2px;" th:text="${ui.email}">Email</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Editable Information Form -->
+                        <form th:action="@{/profile/update}" method="post">
+                            <div class="grid grid-cols-2" style="gap: 16px 24px;">
+                                <div class="input-group">
+                                    <label>Họ và tên</label>
+                                    <input type="text" name="displayName" th:value="${ui.displayName}" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Số điện thoại liên lạc</label>
+                                    <input type="text" name="phone" value="0987 654 321" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Địa chỉ Email (Đăng nhập)</label>
+                                    <input type="email" th:value="${ui.email}" readonly>
+                                </div>
+                                <div class="input-group">
+                                    <label>Phòng ban trực thuộc</label>
+                                    <input type="text" th:value="${employee.department}" readonly>
+                                </div>
+                                <div class="input-group">
+                                    <label>Mã số nhân viên</label>
+                                    <input type="text" th:value="${employee.id}" readonly>
+                                </div>
+                                <div class="input-group">
+                                    <label>Trạng thái tài khoản</label>
+                                    <input type="text" th:value="${employee.status}" readonly>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn btn-primary" style="padding: 12px 32px;">
+                                    <i class="ph-light ph-floppy-disk"></i>
+                                    <span>LƯU THAY ĐỔI</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+</body>
+</html>

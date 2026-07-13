@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700">
+  <defs>
+    <style>
+      .actor { fill: #eef2ff; stroke: #4f46e5; stroke-width: 2; }
+      .system { fill: #ffffff; stroke: #111827; stroke-width: 2.5; }
+      .label { font-family: Arial, sans-serif; font-size: 16px; fill: #111827; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .usecase { fill: #ffffff; stroke: #6b7280; stroke-width: 2; }
+      .link { stroke: #374151; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <text x="30" y="32" class="title">Use Case Diagram HRM</text>
+
+  <rect x="420" y="80" width="430" height="520" class="system" rx="18" ry="18"/>
+  <text x="635" y="112" class="label" style="font-size:18px;font-weight:700;">Hệ thống HRM</text>
+
+  <circle cx="120" cy="130" r="28" class="actor"/>
+  <line x1="120" y1="158" x2="120" y2="220" class="link"/>
+  <line x1="90" y1="180" x2="150" y2="180" class="link"/>
+  <line x1="120" y1="220" x2="95" y2="280" class="link"/>
+  <line x1="120" y1="220" x2="145" y2="280" class="link"/>
+  <line x1="120" y1="240" x2="120" y2="310" class="link"/>
+  <text x="120" y="332" class="label">Employee</text>
+
+  <circle cx="1160" cy="130" r="28" class="actor"/>
+  <line x1="1160" y1="158" x2="1160" y2="220" class="link"/>
+  <line x1="1130" y1="180" x2="1190" y2="180" class="link"/>
+  <line x1="1160" y1="220" x2="1135" y2="280" class="link"/>
+  <line x1="1160" y1="220" x2="1185" y2="280" class="link"/>
+  <line x1="1160" y1="240" x2="1160" y2="310" class="link"/>
+  <text x="1160" y="332" class="label">Manager</text>
+
+  <circle cx="1160" cy="420" r="28" class="actor"/>
+  <line x1="1160" y1="448" x2="1160" y2="510" class="link"/>
+  <line x1="1130" y1="470" x2="1190" y2="470" class="link"/>
+  <line x1="1160" y1="510" x2="1135" y2="570" class="link"/>
+  <line x1="1160" y1="510" x2="1185" y2="570" class="link"/>
+  <line x1="1160" y1="530" x2="1160" y2="600" class="link"/>
+  <text x="1160" y="622" class="label">HR / Admin</text>
+
+  <rect x="500" y="160" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="191" class="label">Đăng nhập</text>
+  <rect x="500" y="230" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="261" class="label">Hồ sơ cá nhân</text>
+  <rect x="500" y="300" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="331" class="label">Chấm công</text>
+  <rect x="500" y="370" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="401" class="label">Đơn nghỉ phép</text>
+  <rect x="500" y="440" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="471" class="label">Dashboard</text>
+  <rect x="500" y="510" width="180" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="590" y="541" class="label">Quản lý tối thiểu</text>
+
+  <rect x="720" y="160" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="191" class="label">Duyệt đơn</text>
+  <rect x="720" y="230" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="261" class="label">Báo cáo công</text>
+  <rect x="720" y="300" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="331" class="label">Quản lý phòng ban</text>
+  <rect x="720" y="370" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="401" class="label">Quản lý nhân viên</text>
+  <rect x="720" y="440" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="471" class="label">Phân quyền</text>
+  <rect x="720" y="510" width="150" height="50" class="usecase" rx="25" ry="25"/>
+  <text x="795" y="541" class="label">Cấu hình hệ thống</text>
+</svg>

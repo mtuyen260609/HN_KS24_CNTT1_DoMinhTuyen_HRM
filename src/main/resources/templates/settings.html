@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Cấu hình')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('settings')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Cấu hình hệ thống')}"></header>
+            <div class="container" style="max-width: 800px;">
+                
+                <form th:action="@{/settings/update}" method="post">
+                    
+                    <!-- Working Hours Card -->
+                    <div class="card-outer">
+                        <div class="card-inner">
+                            <h3 style="margin-top:0"><i class="ph-light ph-clock" style="color: var(--primary);"></i> Thiết lập giờ làm việc</h3>
+                            <div class="grid grid-cols-2" style="gap: 16px 24px;">
+                                <div class="input-group">
+                                    <label>Giờ bắt đầu ca làm việc (Check-in)</label>
+                                    <input type="time" name="checkInTime" th:value="${settings.checkInTime}" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Giờ kết thúc ca làm việc (Check-out)</label>
+                                    <input type="time" name="checkOutTime" th:value="${settings.checkOutTime}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Attendance Rules Card -->
+                    <div class="card-outer" style="margin-top: 24px;">
+                        <div class="card-inner">
+                            <h3><i class="ph-light ph-map-pin" style="color: var(--primary);"></i> Quy định & Tiêu chuẩn chấm công</h3>
+                            
+                            <div class="input-group">
+                                <label>Bán kính cho phép (GPS Radius - Mét)</label>
+                                <input type="number" name="gpsRadius" th:value="${settings.gpsRadius}" min="10" max="5000" required>
+                                <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Khoảng cách tối đa từ toạ độ GPS chấm công đến văn phòng công ty.</span>
+                            </div>
+                            
+                            <div style="display:flex; align-items:center; gap:12px; margin-top:24px; padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                                <input type="checkbox" name="faceAuth" id="faceAuth" th:checked="${settings.faceAuth}" style="width:20px; height:20px; accent-color: var(--primary); cursor: pointer;">
+                                <label for="faceAuth" style="font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text-main); margin-bottom: 0;">Yêu cầu quét khuôn mặt chụp ảnh camera (FaceID)</label>
+                            </div>
+                            
+                            <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn btn-primary" style="padding: 12px 32px;">
+                                    <i class="ph-light ph-floppy-disk"></i>
+                                    <span>LƯU CẤU HÌNH</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </form>
+                
+            </div>
+        </main>
+    </div>
+</body>
+</html>

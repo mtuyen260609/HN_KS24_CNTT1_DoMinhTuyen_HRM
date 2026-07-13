@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720">
+  <defs>
+    <marker id="arrow3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#374151"/>
+    </marker>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .label { font-family: Arial, sans-serif; font-size: 15px; fill: #111827; }
+      .small { font-family: Arial, sans-serif; font-size: 13px; fill: #374151; }
+      .line { stroke: #374151; stroke-width: 2; }
+      .dash { stroke: #9ca3af; stroke-width: 2; stroke-dasharray: 7 7; }
+      .msg { stroke: #374151; stroke-width: 2; fill: none; marker-end: url(#arrow3); }
+      .box { fill: #ffffff; stroke: #111827; stroke-width: 2; rx: 8; ry: 8; }
+    </style>
+  </defs>
+
+  <text x="30" y="32" class="title">Sequence Diagram - Đăng nhập JWT</text>
+
+  <rect x="60" y="70" width="170" height="50" class="box"/>
+  <text x="145" y="101" class="label" text-anchor="middle">User</text>
+  <line x1="145" y1="120" x2="145" y2="660" class="dash"/>
+
+  <rect x="300" y="70" width="170" height="50" class="box"/>
+  <text x="385" y="101" class="label" text-anchor="middle">Frontend</text>
+  <line x1="385" y1="120" x2="385" y2="660" class="dash"/>
+
+  <rect x="540" y="70" width="200" height="50" class="box"/>
+  <text x="640" y="101" class="label" text-anchor="middle">AuthController</text>
+  <line x1="640" y1="120" x2="640" y2="660" class="dash"/>
+
+  <rect x="800" y="70" width="180" height="50" class="box"/>
+  <text x="890" y="101" class="label" text-anchor="middle">AuthService</text>
+  <line x1="890" y1="120" x2="890" y2="660" class="dash"/>
+
+  <rect x="1040" y="70" width="180" height="50" class="box"/>
+  <text x="1130" y="101" class="label" text-anchor="middle">JWTProvider</text>
+  <line x1="1130" y1="120" x2="1130" y2="660" class="dash"/>
+
+  <rect x="1260" y="70" width="90" height="50" class="box"/>
+  <text x="1305" y="101" class="label" text-anchor="middle">DB</text>
+  <line x1="1305" y1="120" x2="1305" y2="660" class="dash"/>
+
+  <line x1="145" y1="190" x2="385" y2="190" class="msg"/>
+  <text x="265" y="176" class="small">Nhập email &amp; mật khẩu, nhấn đăng nhập</text>
+
+  <line x1="385" y1="250" x2="640" y2="250" class="msg"/>
+  <text x="500" y="236" class="small">POST /api/v1/auth/login</text>
+
+  <line x1="640" y1="310" x2="890" y2="310" class="msg"/>
+  <text x="740" y="296" class="small">authenticate(email, password)</text>
+
+  <line x1="890" y1="370" x2="1305" y2="370" class="msg"/>
+  <text x="1038" y="356" class="small">Truy vấn account theo email</text>
+
+  <line x1="1305" y1="430" x2="890" y2="430" class="msg"/>
+  <text x="1010" y="416" class="small">Trả về account</text>
+
+  <line x1="890" y1="490" x2="1130" y2="490" class="msg"/>
+  <text x="965" y="476" class="small">generateToken(userDetails)</text>
+
+  <line x1="1130" y1="550" x2="890" y2="550" class="msg"/>
+  <text x="960" y="536" class="small">accessToken + refreshToken</text>
+
+  <line x1="890" y1="610" x2="385" y2="610" class="msg"/>
+  <text x="520" y="596" class="small">AuthResponse / chuyển hướng dashboard</text>
+</svg>

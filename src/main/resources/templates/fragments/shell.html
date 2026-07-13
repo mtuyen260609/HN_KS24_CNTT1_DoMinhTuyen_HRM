@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="html_head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - HRM PRO'">HRM PRO</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <!-- Sidebar Fragment -->
+    <aside th:fragment="sidebar(activePage)" class="sidebar">
+        <div class="brand">HRM PRO</div>
+        <nav class="nav-group">
+            <!-- Quản lý (Manager) -->
+            <th:block th:if="${ui.manager}">
+                <a href="/dashboard" class="nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                    <i class="ph-light ph-chart-pie-slice"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/management" class="nav-item" th:classappend="${activePage == 'management' ? 'active' : ''}">
+                    <i class="ph-light ph-users"></i>
+                    <span>Quản lý nhân viên</span>
+                </a>
+                <a href="/approvals" class="nav-item" th:classappend="${activePage == 'approvals' ? 'active' : ''}">
+                    <i class="ph-light ph-calendar-check"></i>
+                    <span>Duyệt nghỉ phép</span>
+                </a>
+                <a href="/settings" class="nav-item" th:classappend="${activePage == 'settings' ? 'active' : ''}">
+                    <i class="ph-light ph-gear-six"></i>
+                    <span>Cấu hình hệ thống</span>
+                </a>
+            </th:block>
+
+            <!-- Nhân viên (Employee) -->
+            <th:block th:if="${ui.employee}">
+                <a href="/attendance" class="nav-item" th:classappend="${activePage == 'attendance' ? 'active' : ''}">
+                    <i class="ph-light ph-identification-card"></i>
+                    <span>Chấm công cá nhân</span>
+                </a>
+                <a href="/leave" class="nav-item" th:classappend="${activePage == 'leave' ? 'active' : ''}">
+                    <i class="ph-light ph-calendar-blank"></i>
+                    <span>Đơn nghỉ phép</span>
+                </a>
+                <a href="/payroll" class="nav-item" th:classappend="${activePage == 'payroll' ? 'active' : ''}">
+                    <i class="ph-light ph-wallet"></i>
+                    <span>Bảng lương cá nhân</span>
+                </a>
+            </th:block>
+
+            <!-- Chung -->
+            <a href="/profile" class="nav-item" th:classappend="${activePage == 'profile' ? 'active' : ''}">
+                <i class="ph-light ph-user-circle"></i>
+                <span>Hồ sơ cá nhân</span>
+            </a>
+        </nav>
+
+        <form th:action="@{/session/end}" method="post" class="logout-form">
+            <button type="submit" class="btn btn-ghost" style="width: 100%; justify-content: flex-start;">
+                <i class="ph-light ph-sign-out"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </form>
+    </aside>
+
+    <!-- Topbar Fragment -->
+    <header th:fragment="topbar(pageTitle)" class="top-bar">
+        <h1 class="page-title" th:text="${pageTitle}">Page Title</h1>
+        <div class="user-profile">
+            <div class="user-info">
+                <span class="user-name" th:text="${ui.displayName}">Name</span>
+                <span class="user-role" th:text="${ui.role == 'manager' ? 'Quản lý' : 'Nhân viên'}">Role</span>
+            </div>
+            <div class="avatar" th:text="${#strings.substring(ui.displayName,0,1)}">U</div>
+        </div>
+    </header>
+
+</body>
+</html>

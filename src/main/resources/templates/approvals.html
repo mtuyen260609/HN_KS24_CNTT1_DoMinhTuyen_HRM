@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Duyệt nghỉ phép')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('approvals')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Danh sách yêu cầu nghỉ phép')}"></header>
+            <div class="container">
+                
+                <!-- Pending Approvals list -->
+                <div class="card-outer">
+                    <div class="card-inner">
+                        <h3 style="margin-top:0"><i class="ph-light ph-folder-open" style="color: var(--primary);"></i> Danh sách đơn xin nghỉ phép cần xử lý</h3>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nhân viên</th>
+                                        <th>Loại đơn</th>
+                                        <th>Thời gian xin nghỉ</th>
+                                        <th>Lý do nghỉ</th>
+                                        <th>Trạng thái</th>
+                                        <th style="text-align: right; min-width: 200px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="r : ${requests}">
+                                        <td>
+                                            <div style="font-weight:600; color: var(--text-main);" th:text="${r.employeeName}">Nguyễn Văn A</div>
+                                            <div style="font-size:11px; color:var(--text-muted);" th:text="${r.employeeEmail}">email@demo.local</div>
+                                        </td>
+                                        <td th:text="${r.type}">Nghỉ phép năm</td>
+                                        <td th:text="${r.startDate}">15/07 - 17/07</td>
+                                        <td th:text="${r.reason}">Việc gia đình</td>
+                                        <td>
+                                            <span class="metric-badge" th:classappend="'badge-'+${r.tone}" th:text="${r.status}">Status</span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <th:block th:if="${r.status == 'Chờ duyệt'}">
+                                                <form th:action="@{/approvals/action}" method="post" style="display:inline-block; margin-right: 8px;">
+                                                    <input type="hidden" name="id" th:value="${r.id}">
+                                                    <input type="hidden" name="action" value="approve">
+                                                    <button type="submit" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px; height: auto;">
+                                                        <i class="ph-light ph-check"></i> Duyệt
+                                                    </button>
+                                                </form>
+                                                <form th:action="@{/approvals/action}" method="post" style="display:inline-block;">
+                                                    <input type="hidden" name="id" th:value="${r.id}">
+                                                    <input type="hidden" name="action" value="reject">
+                                                    <button type="submit" class="btn btn-danger" style="padding: 6px 14px; font-size: 12px; height: auto;">
+                                                        <i class="ph-light ph-x"></i> Từ chối
+                                                    </button>
+                                                </form>
+                                            </th:block>
+                                            <th:block th:if="${r.status != 'Chờ duyệt'}">
+                                                <span style="color: var(--text-muted); font-size: 12px; font-style: italic;">Đã hoàn thành</span>
+                                            </th:block>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(requests)}">
+                                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px 0;">
+                                            Không có yêu cầu nghỉ phép nào.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+</body>
+</html>

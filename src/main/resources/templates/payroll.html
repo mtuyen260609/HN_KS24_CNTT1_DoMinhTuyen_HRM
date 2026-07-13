@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Bảng lương cá nhân')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('payroll')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Lịch sử bảng lương cá nhân')}"></header>
+            <div class="container">
+                
+                <!-- Payroll Overview / Intro -->
+                <div class="card-outer">
+                    <div class="card-inner">
+                        <div style="display: flex; gap: 20px; align-items: center;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 229, 255, 0.08); display: grid; place-items: center; border: 1px solid var(--border-highlight);">
+                                <i class="ph-light ph-wallet" style="font-size: 24px; color: var(--primary);"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; font-size: 16px;">Theo dõi thu nhập cá nhân</h3>
+                                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Xem chi tiết các khoản lương và trạng thái thanh toán hàng tháng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payroll History Table -->
+                <div class="card-outer" style="margin-top: 8px;">
+                    <div class="card-inner">
+                        <h3><i class="ph-light ph-file-text" style="color: var(--primary);"></i> Lịch sử nhận lương</h3>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Kỳ thanh toán</th>
+                                        <th>Ngày thanh toán (Payday)</th>
+                                        <th>Ghi chú chi tiết</th>
+                                        <th>Trạng thái</th>
+                                        <th style="text-align: right;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="r : ${records}">
+                                        <td th:text="${r.period}" style="font-weight: 700; color: var(--text-main);">06/2026</td>
+                                        <td th:text="${r.payday}">05/07/2026</td>
+                                        <td th:text="${r.note}">Lương tháng 6 thực nhận</td>
+                                        <td>
+                                            <span class="metric-badge" th:classappend="'badge-'+${r.tone}" th:text="${r.status}">Đã thanh toán</span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px; height: auto;" onclick="alert('Tính năng tải Payslip PDF đang được đồng bộ...')">
+                                                <i class="ph-light ph-download-simple"></i> Payslip
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(records)}">
+                                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px 0;">
+                                            Chưa ghi nhận kỳ thanh toán nào.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+</body>
+</html>

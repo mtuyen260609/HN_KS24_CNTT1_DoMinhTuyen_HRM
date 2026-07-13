@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Đơn nghỉ phép')}"></head>
+<body>
+    <div class="app-shell">
+        <aside th:replace="~{fragments/shell :: sidebar('leave')}"></aside>
+        <main class="main-content">
+            <header th:replace="~{fragments/shell :: topbar('Đơn nghỉ phép cá nhân')}"></header>
+            <div class="container">
+                
+                <div class="grid grid-cols-2">
+                    
+                    <!-- Submit Leave Form -->
+                    <div class="card-outer">
+                        <div class="card-inner">
+                            <h3 style="margin-top:0"><i class="ph-light ph-paper-plane" style="color: var(--primary);"></i> Tạo đơn nghỉ phép mới</h3>
+                            <form th:action="@{/leave/submit}" method="post">
+                                <div class="input-group">
+                                    <label>Loại nghỉ phép</label>
+                                    <select name="type" required>
+                                        <option value="Nghỉ phép năm">Nghỉ phép năm</option>
+                                        <option value="Nghỉ ốm">Nghỉ ốm</option>
+                                        <option value="Nghỉ không lương">Nghỉ không lương</option>
+                                        <option value="Nghỉ chế độ">Nghỉ chế độ</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2" style="gap: 16px;">
+                                    <div class="input-group">
+                                        <label>Từ ngày</label>
+                                        <input type="date" name="startDate" id="startDate" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Đến ngày</label>
+                                        <input type="date" name="endDate" id="endDate" required>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Lý do nghỉ phép</label>
+                                    <textarea name="reason" rows="3" placeholder="Ghi cụ thể lý do xin nghỉ phép..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <span>Gửi đơn duyệt</span>
+                                    <i class="ph-light ph-send"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Leave Balance Dashboard -->
+                    <div class="card-outer">
+                        <div class="card-inner" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height: 100%;">
+                            <div style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing: 1px;">Quỹ nghỉ phép năm còn lại</div>
+                            <div style="font-size:72px; font-weight:800; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 16px 0; filter: drop-shadow(0 0 10px var(--primary-glow));" th:text="${balance}">12</div>
+                            <p style="color:var(--text-muted); font-size:14px; max-width: 250px;">Số ngày phép có lương còn lại có thể sử dụng trong năm nay.</p>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Leave History List -->
+                <div class="card-outer" style="margin-top: 8px;">
+                    <div class="card-inner">
+                        <h3><i class="ph-light ph-clock-counter-clockwise" style="color: var(--primary);"></i> Lịch sử gửi đơn nghỉ phép</h3>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Loại nghỉ</th>
+                                        <th>Thời gian nghỉ</th>
+                                        <th>Lý do nghỉ</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="h : ${history}">
+                                        <td th:text="${h.type}" style="font-weight:600">Type</td>
+                                        <td th:text="${h.startDate}">Date</td>
+                                        <td th:text="${h.reason}">Reason</td>
+                                        <td>
+                                            <span class="metric-badge" th:classappend="'badge-'+${h.tone}" th:text="${h.status}">Status</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(history)}">
+                                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px 0;">
+                                            Chưa có đơn nghỉ phép nào được tạo.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+    <script>
+        // Set default minimum dates to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+        document.getElementById('endDate').min = today;
+        
+        // Ensure end date is not before start date
+        document.getElementById('startDate').addEventListener('change', function() {
+            document.getElementById('endDate').min = this.value;
+        });
+    </script>
+</body>
+</html>

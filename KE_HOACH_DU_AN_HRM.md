@@ -28,7 +28,7 @@ Dự án được triển khai chạy liên tục trong **chính xác 10 ngày l
 
 ### CHI PHÍ DỰ ÁN (PROJECT COSTING)
 
-Dưới đây là bảng tính toán chi phí dự án, dựa trên việc dự án thực tế **chỉ có 1 người thực hiện (Solo Developer)**. Số ngày làm việc thực tế là 10 ngày.
+Dưới đây là bảng tính toán chi phí dự án, dựa trên đội ngũ phát triển gồm **01 Lập trình viên (Developer)** và **01 Kiểm thử viên (QA/Tester) bán thời gian**. Số ngày triển khai thực tế là 10 ngày.
 
 #### 1. Chi phí Hạ tầng & Dịch vụ Bên Thứ Ba (Infrastructure)
 
@@ -45,16 +45,17 @@ Dưới đây là bảng tính toán chi phí dự án, dựa trên việc dự 
 
 | Hạng mục chi phí | Số tiền (VND) | Tỷ trọng |
 | :--- | :---: | :---: |
-| 1. Chi phí nhân sự (1 Lập trình viên x 10 ngày) | 10.000.000 | 83.3% |
-| 2. Chi phí hạ tầng & Dịch vụ | 1.400.000 | 11.7% |
-| 3. Dự phòng rủi ro | 600.000 | 5.0% |
-| **TỔNG CỘNG CHI PHÍ DỰ ÁN** | **12.000.000** | **100%** |
+| 1. Chi phí Lập trình (1 Dev x 10 ngày) | 10.000.000 | 66.7% |
+| 2. Chi phí Kiểm thử (1 QA x 3 ngày) | 2.400.000 | 16.0% |
+| 3. Chi phí hạ tầng & Dịch vụ | 1.400.000 | 9.3% |
+| 4. Dự phòng rủi ro | 1.200.000 | 8.0% |
+| **TỔNG CỘNG CHI PHÍ DỰ ÁN** | **15.000.000** | **100%** |
 
-*(Bằng chữ: Mười hai triệu đồng chẵn).*
+*(Bằng chữ: Mười lăm triệu đồng chẵn).*
 
 ---
 
 #### 4. Kế hoạch Thanh toán Đề xuất
-- **Đợt 1: Tạm ứng (30%)** - 3.600.000 VND (Ký HĐ ngày 07/07/2026).
-- **Đợt 2: Nghiệm thu Giai đoạn Phát triển (40%)** - 4.800.000 VND (Ngày 15/07/2026).
-- **Đợt 3: Bàn giao toàn bộ Golive (30%)** - 3.600.000 VND (Ngày 20/07/2026).
+- **Đợt 1: Tạm ứng (30%)** - 4.500.000 VND (Ký HĐ ngày 07/07/2026).
+- **Đợt 2: Nghiệm thu Giai đoạn Phát triển (40%)** - 6.000.000 VND (Ngày 15/07/2026).
+- **Đợt 3: Bàn giao toàn bộ Golive (30%)** - 4.500.000 VND (Ngày 20/07/2026).

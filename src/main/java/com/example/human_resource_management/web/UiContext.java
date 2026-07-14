@@ -5,7 +5,6 @@ public record UiContext(
         String displayName,
         String email,
         boolean employee,
-        boolean manager,
         boolean hr
 ) {
 }

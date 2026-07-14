@@ -21,8 +21,6 @@ public class Department {
 
     private String description;
 
-    @Column(name = "manager_id")
-    private Long managerId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

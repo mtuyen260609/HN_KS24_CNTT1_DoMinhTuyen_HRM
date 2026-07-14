@@ -9,7 +9,6 @@ erDiagram
     DEPARTMENTS ||--o{ EMPLOYEES : "belongs to"
     EMPLOYEES ||--o{ ATTENDANCES : "records"
     EMPLOYEES ||--o{ LEAVES : "requests"
-    EMPLOYEES |o--o{ DEPARTMENTS : "manages"
     EMPLOYEES |o--o{ LEAVES : "approves"
 
     USERS {
@@ -48,7 +47,6 @@ erDiagram
         bigint id PK
         varchar name UK
         varchar description
-        bigint manager_id FK "nullable"
         timestamp created_at
         timestamp updated_at
     }
@@ -82,8 +80,8 @@ erDiagram
 
 ## Mô tả chi tiết các bảng
 - **USERS**: Lưu trữ thông tin tài khoản đăng nhập của người dùng. Mỗi user có thể liên kết với một nhân viên (`employee_id`).
-- **ROLES**: Quản lý các vai trò trong hệ thống (RBAC) bao gồm EMPLOYEE, MANAGER, HR.
+- **ROLES**: Quản lý các vai trò trong hệ thống (RBAC) bao gồm EMPLOYEE, HR.
 - **EMPLOYEES**: Lưu trữ thông tin chi tiết hồ sơ cá nhân của nhân viên.
-- **DEPARTMENTS**: Quản lý phòng ban. Một phòng ban có thể có một người quản lý (`manager_id` liên kết đến bảng `EMPLOYEES`).
+- **DEPARTMENTS**: Quản lý phòng ban.
 - **ATTENDANCES**: Lưu trữ dữ liệu lịch sử chấm công, bao gồm thời gian, hình ảnh selfie và tọa độ vị trí (GPS), cùng với trạng thái chấm công.
 - **LEAVES**: Lưu trữ đơn xin nghỉ phép của nhân viên, quản lý quy trình duyệt đơn với `approver_id` là người duyệt.

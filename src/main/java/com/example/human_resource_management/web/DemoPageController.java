@@ -176,9 +176,7 @@ public class DemoPageController {
     static {
         // Prepopulate system with sample data
         employees.add(new Employee("EMP001", "Nguyễn Văn Nhân Viên", "employee@demo.local", "Employee", "Active", "Phòng Kỹ thuật"));
-        employees.add(new Employee("EMP002", "Trần Thị Bán Hàng", "employee2@demo.local", "Employee", "Active", "Phòng Kinh doanh"));
-        employees.add(new Employee("MGR001", "Lê Quản Lý", "manager@demo.local", "Manager", "Active", "Ban Giám đốc"));
-        employees.add(new Employee("HR001", "Nguyễn Thị Nhân Sự", "hr@demo.local", "Manager", "Active", "Phòng Nhân sự"));
+        employees.add(new Employee("HR001", "Nguyễn Thị Nhân Sự", "hr@demo.local", "HR", "Active", "Phòng Nhân sự"));
 
         leaveRequests.add(new LeaveRequest("LV001", "Nguyễn Văn Nhân Viên", "employee@demo.local", "Nghỉ phép năm", "15/07", "17/07", "Giải quyết công việc gia đình", "Chờ duyệt", "warning"));
         leaveRequests.add(new LeaveRequest("LV002", "Trần Thị Bán Hàng", "employee2@demo.local", "Nghỉ ốm", "05/07", "05/07", "Khám sức khỏe định kỳ", "Đã duyệt", "success"));
@@ -197,8 +195,7 @@ public class DemoPageController {
                 (String) session.getAttribute("displayName"),
                 (String) session.getAttribute("email"),
                 "employee".equals(role),
-                "manager".equals(role),
-                "manager".equals(role)
+                "hr".equals(role)
         );
     }
 
@@ -218,18 +215,13 @@ public class DemoPageController {
 
     @PostMapping("/session/start")
     public String startSession(@RequestParam String email, @RequestParam String password, HttpSession session) {
-        if ("manager@demo.local".equals(email) && "123456".equals(password)) {
-            session.setAttribute("role", "manager");
-            session.setAttribute("displayName", "Lê Quản Lý");
-            session.setAttribute("email", email);
-            return "redirect:/dashboard";
-        } else if ("employee@demo.local".equals(email) && "123456".equals(password)) {
+        if ("employee@demo.local".equals(email) && "123456".equals(password)) {
             session.setAttribute("role", "employee");
             session.setAttribute("displayName", "Nguyễn Văn Nhân Viên");
             session.setAttribute("email", email);
             return "redirect:/attendance";
         } else if ("hr@demo.local".equals(email) && "123456".equals(password)) {
-            session.setAttribute("role", "manager");
+            session.setAttribute("role", "hr");
             session.setAttribute("displayName", "Nguyễn Thị Nhân Sự");
             session.setAttribute("email", email);
             return "redirect:/dashboard";
@@ -245,7 +237,7 @@ public class DemoPageController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpSession session) {
-        if (!"manager".equals(session.getAttribute("role"))) return "redirect:/attendance";
+        if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "dashboard");
 
         // Compute metrics dynamically
@@ -448,7 +440,7 @@ public class DemoPageController {
 
     @GetMapping("/management")
     public String management(Model model, HttpSession session) {
-        if (!"manager".equals(session.getAttribute("role"))) return "redirect:/attendance";
+        if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "management");
         model.addAttribute("employees", employees);
         return "management";
@@ -469,7 +461,7 @@ public class DemoPageController {
 
     @GetMapping("/settings")
     public String settings(Model model, HttpSession session) {
-        if (!"manager".equals(session.getAttribute("role"))) return "redirect:/attendance";
+        if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "settings");
         model.addAttribute("settings", settings);
         return "settings";
@@ -486,7 +478,7 @@ public class DemoPageController {
 
     @GetMapping("/approvals")
     public String approvals(Model model, HttpSession session) {
-        if (!"manager".equals(session.getAttribute("role"))) return "redirect:/attendance";
+        if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "approvals");
         model.addAttribute("requests", leaveRequests);
         return "approvals";

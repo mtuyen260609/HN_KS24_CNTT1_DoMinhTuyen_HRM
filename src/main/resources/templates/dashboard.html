@@ -20,6 +20,17 @@
                 </div>
                 
                 <!-- Detailed Widgets Grid -->
+                
+                <!-- Statistics Chart -->
+                <div class="card-outer" style="margin-bottom: 24px;">
+                    <div class="card-inner">
+                        <h3><i class="ph-light ph-chart-line-up" style="color: var(--primary);"></i> Thống kê tình hình nhân sự</h3>
+                        <div style="height: 300px; width: 100%;">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2">
                     
                     <!-- Recent Activities -->
@@ -86,5 +97,49 @@
             </div>
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(0, 229, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 229, 255, 0)');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Tỷ lệ đi làm đúng giờ (%)',
+                    data: [95, 92, 98, 90, 96, 94, 0],
+                    borderColor: '#00e5ff',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#a1a1aa' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#a1a1aa' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#a1a1aa' }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

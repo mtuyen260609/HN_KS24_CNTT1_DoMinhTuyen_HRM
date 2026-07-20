@@ -11,179 +11,145 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.example.human_resource_management.entity.User;
+import com.example.human_resource_management.entity.Department;
+import com.example.human_resource_management.entity.Role;
+import com.example.human_resource_management.entity.SystemSetting;
+import java.time.LocalDateTime;
+import com.example.human_resource_management.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Controller
+@RequiredArgsConstructor
 public class DemoPageController {
 
-    // --- Dynamic In-Memory Store ---
-    public static class Employee {
-        private String id;
-        private String name;
-        private String email;
-        private String role;
-        private String status;
-        private String department;
+    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
+    private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PayrollRepository payrollRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final SystemSettingRepository systemSettingRepository;
 
-        public Employee(String id, String name, String email, String role, String status, String department) {
-            this.id = id;
-            this.name = name;
-            this.email = email;
-            this.role = role;
-            this.status = status;
-            this.department = department;
+    @jakarta.annotation.PostConstruct
+    @org.springframework.transaction.annotation.Transactional
+    public void initDemoData() {
+        if (userRepository.count() == 0) {
+            Role employeeRole = roleRepository.findByName("ROLE_EMPLOYEE").orElseGet(() -> {
+                Role r = new Role();
+                r.setName("ROLE_EMPLOYEE");
+                return roleRepository.save(r);
+            });
+            Role hrRole = roleRepository.findByName("ROLE_HR").orElseGet(() -> {
+                Role r = new Role();
+                r.setName("ROLE_HR");
+                return roleRepository.save(r);
+            });
+            
+            Department d1 = new Department();
+            d1.setName("Phòng Kỹ thuật");
+            departmentRepository.save(d1);
+            
+            Department d2 = new Department();
+            d2.setName("Phòng Nhân sự");
+            departmentRepository.save(d2);
+
+            com.example.human_resource_management.entity.Employee e1 = new com.example.human_resource_management.entity.Employee();
+            e1.setFullName("Nguyễn Văn Nhân Viên");
+            e1.setDepartment(d1);
+            e1.setBaseSalary(15000000L);
+            employeeRepository.save(e1);
+
+            User u1 = new User();
+            u1.setUsername("employee");
+            u1.setPassword(passwordEncoder.encode("123456"));
+            u1.setEmail("employee@demo.local");
+            u1.setRole(employeeRole);
+            u1.setEmployee(e1);
+            u1.setActive(true);
+            userRepository.save(u1);
+
+            com.example.human_resource_management.entity.Employee e2 = new com.example.human_resource_management.entity.Employee();
+            e2.setFullName("Nguyễn Thị Nhân Sự");
+            e2.setDepartment(d2);
+            e2.setBaseSalary(25000000L);
+            employeeRepository.save(e2);
+
+            User u2 = new User();
+            u2.setUsername("hr");
+            u2.setPassword(passwordEncoder.encode("123456"));
+            u2.setEmail("hr@demo.local");
+            u2.setRole(hrRole);
+            u2.setEmployee(e2);
+            u2.setActive(true);
+            userRepository.save(u2);
+        } // end of userRepository.count() == 0 block
+
+        // Force populate mock data if there are only 2 employees (the default ones)
+        if (employeeRepository.count() <= 2) {
+            Role employeeRole = roleRepository.findByName("ROLE_EMPLOYEE").orElse(null);
+            Department d1 = departmentRepository.findAll().stream().filter(d -> "Phòng Kỹ thuật".equals(d.getName())).findFirst().orElse(null);
+            
+            Department d3 = new Department();
+            d3.setName("Phòng Kinh doanh");
+            departmentRepository.save(d3);
+
+            String[] names = {"Trần Minh Tân", "Lê Hải Yến", "Phạm Quốc Bảo", "Hoàng Thu Thảo", "Vũ Đức Trí"};
+            String[] emails = {"tan.tm@demo.local", "yen.lh@demo.local", "bao.pq@demo.local", "thao.ht@demo.local", "tri.vd@demo.local"};
+            long[] salaries = {18000000L, 16500000L, 22000000L, 14000000L, 19500000L};
+
+            for (int i = 0; i < names.length; i++) {
+                com.example.human_resource_management.entity.Employee e = new com.example.human_resource_management.entity.Employee();
+                e.setFullName(names[i]);
+                e.setDepartment(i % 2 == 0 ? d1 : d3);
+                e.setBaseSalary(salaries[i]);
+                employeeRepository.save(e);
+
+                User u = new User();
+                u.setUsername(emails[i].split("@")[0]);
+                u.setPassword(passwordEncoder.encode("123456"));
+                u.setEmail(emails[i]);
+                u.setRole(employeeRole);
+                u.setEmployee(e);
+                u.setActive(true);
+                userRepository.save(u);
+
+                // Generate some mock attendances for this month
+                LocalDate today = LocalDate.now();
+                for (int day = 1; day <= 20; day++) {
+                    LocalDate workDate = today.withDayOfMonth(day);
+                    if (workDate.getDayOfWeek().getValue() >= 6) continue; // Skip weekend
+                    
+                    com.example.human_resource_management.entity.Attendance a = new com.example.human_resource_management.entity.Attendance();
+                    a.setEmployee(e);
+                    a.setWorkDate(workDate);
+                    a.setCheckInTime(workDate.atTime(7, 50 + (int)(Math.random() * 20)));
+                    a.setCheckOutTime(workDate.atTime(17, 30 + (int)(Math.random() * 40)));
+                    a.setStatus("Hợp lệ");
+                    a.setCheckInLocation("21.0285, 105.8542");
+                    attendanceRepository.save(a);
+                }
+                
+                // Generate some leave requests
+                if (i % 2 == 0) {
+                    com.example.human_resource_management.entity.LeaveRequest req = new com.example.human_resource_management.entity.LeaveRequest();
+                    req.setEmployee(e);
+                    req.setStartDate(today.plusDays(1));
+                    req.setEndDate(today.plusDays(2));
+                    req.setReason("[Nghỉ phép năm] Giải quyết việc gia đình");
+                    req.setStatus("Chờ duyệt");
+                    leaveRequestRepository.save(req);
+                }
+            }
         }
-
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getRole() { return role; }
-        public void setRole(String role) { this.role = role; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
     }
 
-    public static class LeaveRequest {
-        private String id;
-        private String employeeName;
-        private String employeeEmail;
-        private String type;
-        private String startDate;
-        private String endDate;
-        private String reason;
-        private String status; // Chờ duyệt, Đã duyệt, Từ chối
-        private String tone;   // warning, success, danger
-
-        public LeaveRequest(String id, String employeeName, String employeeEmail, String type, String startDate, String endDate, String reason, String status, String tone) {
-            this.id = id;
-            this.employeeName = employeeName;
-            this.employeeEmail = employeeEmail;
-            this.type = type;
-            this.startDate = startDate;
-            this.endDate = endDate;
-            this.reason = reason;
-            this.status = status;
-            this.tone = tone;
-        }
-
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
-        public String getEmployeeName() { return employeeName; }
-        public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
-        public String getEmployeeEmail() { return employeeEmail; }
-        public void setEmployeeEmail(String employeeEmail) { this.employeeEmail = employeeEmail; }
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-        public String getStartDate() { return startDate; }
-        public void setStartDate(String startDate) { this.startDate = startDate; }
-        public String getEndDate() { return endDate; }
-        public void setEndDate(String endDate) { this.endDate = endDate; }
-        public String getReason() { return reason; }
-        public void setReason(String reason) { this.reason = reason; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public String getTone() { return tone; }
-        public void setTone(String tone) { this.tone = tone; }
-    }
-
-    public static class AttendanceRecord {
-        private String id;
-        private String employeeName;
-        private String employeeEmail;
-        private String date;
-        private String inTime;
-        private String outTime;
-        private String status; // Hợp lệ, Đi muộn, Về sớm, v.v.
-        private String gps;
-        private String selfie; // Base64 or placeholder
-
-        public AttendanceRecord(String id, String employeeName, String employeeEmail, String date, String inTime, String outTime, String status, String gps, String selfie) {
-            this.id = id;
-            this.employeeName = employeeName;
-            this.employeeEmail = employeeEmail;
-            this.date = date;
-            this.inTime = inTime;
-            this.outTime = outTime;
-            this.status = status;
-            this.gps = gps;
-            this.selfie = selfie;
-        }
-
-        public String getId() { return id; }
-        public String getEmployeeName() { return employeeName; }
-        public String getEmployeeEmail() { return employeeEmail; }
-        public String getDate() { return date; }
-        public String getInTime() { return inTime; }
-        public void setOutTime(String outTime) { this.outTime = outTime; }
-        public String getOutTime() { return outTime; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public String getGps() { return gps; }
-        public String getSelfie() { return selfie; }
-    }
-
-    public static class SystemSettings {
-        private String checkInTime = "08:00";
-        private String checkOutTime = "17:30";
-        private int gpsRadius = 200;
-        private boolean faceAuth = true;
-
-        public String getCheckInTime() { return checkInTime; }
-        public void setCheckInTime(String checkInTime) { this.checkInTime = checkInTime; }
-        public String getCheckOutTime() { return checkOutTime; }
-        public void setCheckOutTime(String checkOutTime) { this.checkOutTime = checkOutTime; }
-        public int getGpsRadius() { return gpsRadius; }
-        public void setGpsRadius(int gpsRadius) { this.gpsRadius = gpsRadius; }
-        public boolean isFaceAuth() { return faceAuth; }
-        public void setFaceAuth(boolean faceAuth) { this.faceAuth = faceAuth; }
-    }
-
-    public static class PayrollRecord {
-        private String period;
-        private String status;
-        private String tone;
-        private String payday;
-        private String note;
-
-        public PayrollRecord(String period, String status, String tone, String payday, String note) {
-            this.period = period;
-            this.status = status;
-            this.tone = tone;
-            this.payday = payday;
-            this.note = note;
-        }
-
-        public String getPeriod() { return period; }
-        public void setPeriod(String period) { this.period = period; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public String getTone() { return tone; }
-        public void setTone(String tone) { this.tone = tone; }
-        public String getPayday() { return payday; }
-        public void setPayday(String payday) { this.payday = payday; }
-        public String getNote() { return note; }
-        public void setNote(String note) { this.note = note; }
-    }
-
-    private static final List<Employee> employees = new CopyOnWriteArrayList<>();
-    private static final List<LeaveRequest> leaveRequests = new CopyOnWriteArrayList<>();
-    private static final List<AttendanceRecord> attendanceRecords = new CopyOnWriteArrayList<>();
-    private static final SystemSettings settings = new SystemSettings();
-
-    static {
-        // Prepopulate system with sample data
-        employees.add(new Employee("EMP001", "Nguyễn Văn Nhân Viên", "employee@demo.local", "Employee", "Active", "Phòng Kỹ thuật"));
-        employees.add(new Employee("HR001", "Nguyễn Thị Nhân Sự", "hr@demo.local", "HR", "Active", "Phòng Nhân sự"));
-
-        leaveRequests.add(new LeaveRequest("LV001", "Nguyễn Văn Nhân Viên", "employee@demo.local", "Nghỉ phép năm", "15/07", "17/07", "Giải quyết công việc gia đình", "Chờ duyệt", "warning"));
-        leaveRequests.add(new LeaveRequest("LV002", "Trần Thị Bán Hàng", "employee2@demo.local", "Nghỉ ốm", "05/07", "05/07", "Khám sức khỏe định kỳ", "Đã duyệt", "success"));
-
-        attendanceRecords.add(new AttendanceRecord("AT001", "Nguyễn Văn Nhân Viên", "employee@demo.local", "10/07", "08:05", "17:35", "Hợp lệ", "21.0285, 105.8542", ""));
-        attendanceRecords.add(new AttendanceRecord("AT002", "Nguyễn Văn Nhân Viên", "employee@demo.local", "09/07", "08:10", "17:30", "Hợp lệ", "21.0285, 105.8542", ""));
-        attendanceRecords.add(new AttendanceRecord("AT003", "Trần Thị Bán Hàng", "employee2@demo.local", "10/07", "08:25", "17:40", "Đi muộn", "21.0286, 105.8543", ""));
+    @GetMapping("/demo/populate")
+    public String populateMoreData() {
+        return "redirect:/management";
     }
 
     @ModelAttribute("ui")
@@ -214,17 +180,28 @@ public class DemoPageController {
     }
 
     @PostMapping("/session/start")
+    @org.springframework.transaction.annotation.Transactional
     public String startSession(@RequestParam String email, @RequestParam String password, HttpSession session) {
-        if ("employee@demo.local".equals(email) && "123456".equals(password)) {
-            session.setAttribute("role", "employee");
-            session.setAttribute("displayName", "Nguyễn Văn Nhân Viên");
-            session.setAttribute("email", email);
-            return "redirect:/attendance";
-        } else if ("hr@demo.local".equals(email) && "123456".equals(password)) {
-            session.setAttribute("role", "hr");
-            session.setAttribute("displayName", "Nguyễn Thị Nhân Sự");
-            session.setAttribute("email", email);
-            return "redirect:/dashboard";
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user == null) {
+            user = userRepository.findByUsername(email).orElse(null);
+        }
+        if (user != null && (password.equals(user.getPassword()) || passwordEncoder.matches(password, user.getPassword()))) {
+            String role = user.getRole().getName().replace("ROLE_", "").toLowerCase();
+            session.setAttribute("role", role);
+            if (user.getEmployee() != null) {
+                session.setAttribute("displayName", user.getEmployee().getFullName());
+            } else {
+                session.setAttribute("displayName", user.getUsername());
+            }
+            session.setAttribute("email", user.getEmail() != null ? user.getEmail() : user.getUsername());
+            session.setAttribute("username", user.getUsername());
+            
+            if (role.equals("employee")) {
+                return "redirect:/attendance";
+            } else {
+                return "redirect:/dashboard";
+            }
         }
         return "redirect:/login?error=true";
     }
@@ -240,16 +217,14 @@ public class DemoPageController {
         if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "dashboard");
 
-        // Compute metrics dynamically
-        int totalStaff = employees.size();
+        long totalStaff = employeeRepository.count();
         
-        // Count checkins for today (mock date: 10/07 for demo consistency)
-        long checkedInToday = attendanceRecords.stream()
-                .filter(r -> "10/07".equals(r.getDate()))
-                .count();
+        LocalDate today = LocalDate.now();
+        List<com.example.human_resource_management.entity.Attendance> todaysAttendance = attendanceRepository.findAll().stream().filter(a -> a.getWorkDate().equals(today)).toList();
+        long checkedInToday = todaysAttendance.size();
         
-        long pendingLeaves = leaveRequests.stream()
-                .filter(r -> "Chờ duyệt".equals(r.getStatus()))
+        long pendingLeaves = leaveRequestRepository.findAll().stream()
+                .filter(r -> "PENDING".equals(r.getStatus()) || "Chờ duyệt".equals(r.getStatus()))
                 .count();
 
         model.addAttribute("metrics", List.of(
@@ -258,22 +233,20 @@ public class DemoPageController {
                 metric("Đơn nghỉ chờ duyệt", String.valueOf(pendingLeaves), "Cần xử lý", "warning")
         ));
 
-        // Gather recent activities from attendance records
         List<Map<String, Object>> activities = new ArrayList<>();
-        attendanceRecords.stream()
-                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+        attendanceRepository.findAll().stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(5)
                 .forEach(r -> {
                     activities.add(row(
-                            "time", r.getDate() + " " + r.getInTime(),
-                            "title", r.getEmployeeName() + " check-in (" + r.getStatus() + ")"
+                            "time", r.getWorkDate().toString() + (r.getCheckInTime() != null ? " " + r.getCheckInTime().toLocalTime().toString() : ""),
+                            "title", r.getEmployee().getFullName() + " check-in (" + r.getStatus() + ")"
                     ));
                 });
         model.addAttribute("activities", activities);
 
-        // Attention needed staff (who are late or absent)
-        long lateCount = attendanceRecords.stream()
-                .filter(r -> "10/07".equals(r.getDate()) && "Đi muộn".equals(r.getStatus()))
+        long lateCount = todaysAttendance.stream()
+                .filter(r -> "Đi muộn".equals(r.getStatus()))
                 .count();
         model.addAttribute("lateCount", lateCount);
 
@@ -286,50 +259,55 @@ public class DemoPageController {
         if (email == null) return "redirect:/login";
         model.addAttribute("activePage", "attendance");
 
-        // Filter attendance for the logged-in user
-        List<AttendanceRecord> userHistory = attendanceRecords.stream()
-                .filter(r -> email.equals(r.getEmployeeEmail()))
-                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
-                .toList();
-
-        model.addAttribute("history", userHistory);
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            List<com.example.human_resource_management.entity.Attendance> userHistory = attendanceRepository.findByEmployeeIdOrderByWorkDateDesc(user.getEmployee().getId());
+            model.addAttribute("history", userHistory);
+        }
+        
+        SystemSetting checkInTime = systemSettingRepository.findById("checkInTime").orElse(new SystemSetting("checkInTime", "08:00"));
+        SystemSetting checkOutTime = systemSettingRepository.findById("checkOutTime").orElse(new SystemSetting("checkOutTime", "17:30"));
+        SystemSetting gpsRadius = systemSettingRepository.findById("gpsRadius").orElse(new SystemSetting("gpsRadius", "200"));
+        SystemSetting faceAuth = systemSettingRepository.findById("faceAuth").orElse(new SystemSetting("faceAuth", "true"));
+        
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("checkInTime", checkInTime.getValue());
+        settings.put("checkOutTime", checkOutTime.getValue());
+        settings.put("gpsRadius", gpsRadius.getValue());
+        settings.put("faceAuth", Boolean.parseBoolean(faceAuth.getValue()));
         model.addAttribute("settings", settings);
+        
         return "attendance";
     }
 
     @PostMapping("/attendance/checkin")
     public String checkIn(@RequestParam(required = false) String gps, @RequestParam(required = false) String selfie, HttpSession session) {
         String email = (String) session.getAttribute("email");
-        String name = (String) session.getAttribute("displayName");
         if (email == null) return "redirect:/login";
 
-        String currentDate = "10/07"; // Hardcoded for matching prepopulated demo
-        String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
-        
-        // Determine status based on config settings
-        String status = "Hợp lệ";
-        if (currentTime.compareTo(settings.getCheckInTime()) > 0) {
-            status = "Đi muộn";
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            LocalDate today = LocalDate.now();
+            com.example.human_resource_management.entity.Attendance existing = attendanceRepository.findByEmployeeAndWorkDate(user.getEmployee(), today).orElse(null);
+            
+            if (existing == null) {
+                String checkInTimeStr = systemSettingRepository.findById("checkInTime").map(SystemSetting::getValue).orElse("08:00");
+                LocalTime checkInTime = LocalTime.parse(checkInTimeStr);
+                
+                String status = "Hợp lệ";
+                if (LocalTime.now().isAfter(checkInTime)) {
+                    status = "Đi muộn";
+                }
+                
+                com.example.human_resource_management.entity.Attendance attendance = new com.example.human_resource_management.entity.Attendance();
+                attendance.setEmployee(user.getEmployee());
+                attendance.setWorkDate(today);
+                attendance.setCheckInTime(LocalDateTime.now());
+                attendance.setCheckInLocation(gps);
+                attendance.setStatus(status);
+                attendanceRepository.save(attendance);
+            }
         }
-
-        String gpsCoord = (gps != null && !gps.isEmpty()) ? gps : "21.0285, 105.8542";
-        String selfieImg = (selfie != null) ? selfie : "";
-
-        // Remove existing record for today if exists to re-checkin
-        attendanceRecords.removeIf(r -> email.equals(r.getEmployeeEmail()) && currentDate.equals(r.getDate()));
-
-        attendanceRecords.add(0, new AttendanceRecord(
-                "AT" + System.currentTimeMillis(),
-                name,
-                email,
-                currentDate,
-                currentTime,
-                "",
-                status,
-                gpsCoord,
-                selfieImg
-        ));
-
         return "redirect:/attendance";
     }
 
@@ -338,18 +316,20 @@ public class DemoPageController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/login";
 
-        String currentDate = "10/07";
-        String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
-
-        // Find today's check-in
-        for (AttendanceRecord r : attendanceRecords) {
-            if (email.equals(r.getEmployeeEmail()) && currentDate.equals(r.getDate())) {
-                r.setOutTime(currentTime);
-                // Check if early checkout
-                if (currentTime.compareTo(settings.getCheckOutTime()) < 0) {
-                    r.setStatus(r.getStatus() + " & Về sớm");
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            LocalDate today = LocalDate.now();
+            com.example.human_resource_management.entity.Attendance existing = attendanceRepository.findByEmployeeAndWorkDate(user.getEmployee(), today).orElse(null);
+            
+            if (existing != null) {
+                existing.setCheckOutTime(LocalDateTime.now());
+                String checkOutTimeStr = systemSettingRepository.findById("checkOutTime").map(SystemSetting::getValue).orElse("17:30");
+                LocalTime checkOutTime = LocalTime.parse(checkOutTimeStr);
+                
+                if (LocalTime.now().isBefore(checkOutTime)) {
+                    existing.setStatus(existing.getStatus() + " & Về sớm");
                 }
-                break;
+                attendanceRepository.save(existing);
             }
         }
 
@@ -362,18 +342,19 @@ public class DemoPageController {
         if (email == null) return "redirect:/login";
         model.addAttribute("activePage", "leave");
 
-        // Calculate leave balance dynamically (starts at 12, decreases by approved leave days)
-        long approvedDays = leaveRequests.stream()
-                .filter(r -> email.equals(r.getEmployeeEmail()) && "Đã duyệt".equals(r.getStatus()))
-                .count(); // Assuming 1 day per request for simplistic demo
-        model.addAttribute("balance", String.valueOf(12 - approvedDays));
-
-        // Filter user history
-        List<LeaveRequest> userHistory = leaveRequests.stream()
-                .filter(r -> email.equals(r.getEmployeeEmail()))
-                .sorted((a, b) -> b.getId().compareTo(a.getId()))
-                .toList();
-        model.addAttribute("history", userHistory);
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            List<com.example.human_resource_management.entity.LeaveRequest> userHistory = leaveRequestRepository.findByEmployeeIdOrderByCreatedAtDesc(user.getEmployee().getId());
+            long approvedDays = userHistory.stream()
+                    .filter(r -> "Đã duyệt".equals(r.getStatus()))
+                    .mapToLong(r -> java.time.temporal.ChronoUnit.DAYS.between(r.getStartDate(), r.getEndDate()) + 1)
+                    .sum();
+            model.addAttribute("balance", String.valueOf(12 - approvedDays));
+            model.addAttribute("history", userHistory);
+        } else {
+            model.addAttribute("balance", "12");
+            model.addAttribute("history", new ArrayList<>());
+        }
 
         return "leave";
     }
@@ -381,25 +362,19 @@ public class DemoPageController {
     @PostMapping("/leave/submit")
     public String submitLeave(@RequestParam String type, @RequestParam String startDate, @RequestParam String endDate, @RequestParam String reason, HttpSession session) {
         String email = (String) session.getAttribute("email");
-        String name = (String) session.getAttribute("displayName");
         if (email == null) return "redirect:/login";
 
-        // Convert date format from YYYY-MM-DD to DD/MM for display
-        String startDisp = startDate.substring(8) + "/" + startDate.substring(5, 7);
-        String endDisp = endDate.substring(8) + "/" + endDate.substring(5, 7);
-        String dateRange = startDisp + " - " + endDisp;
-
-        leaveRequests.add(0, new LeaveRequest(
-                "LV" + (leaveRequests.size() + 1),
-                name,
-                email,
-                type,
-                dateRange,
-                "",
-                reason,
-                "Chờ duyệt",
-                "warning"
-        ));
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            com.example.human_resource_management.entity.LeaveRequest req = new com.example.human_resource_management.entity.LeaveRequest();
+            req.setEmployee(user.getEmployee());
+            req.setStartDate(LocalDate.parse(startDate));
+            req.setEndDate(LocalDate.parse(endDate));
+            // Assuming we repurpose 'reason' or append type
+            req.setReason("[" + type + "] " + reason);
+            req.setStatus("Chờ duyệt");
+            leaveRequestRepository.save(req);
+        }
 
         return "redirect:/leave";
     }
@@ -409,14 +384,22 @@ public class DemoPageController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/login";
         model.addAttribute("activePage", "profile");
-
-        // Get details from employee records
-        Employee emp = employees.stream()
-                .filter(e -> email.equals(e.getEmail()))
-                .findFirst()
-                .orElse(new Employee("EMP000", (String) session.getAttribute("displayName"), email, "Employee", "Active", "Kỹ thuật"));
         
-        model.addAttribute("employee", emp);
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user == null) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+        
+        model.addAttribute("user", user);
+            if (user.getEmployee() != null) {
+                model.addAttribute("employee", user.getEmployee());
+                String fd = user.getEmployee().getFaceDescriptor();
+                model.addAttribute("hasFace", fd != null && !fd.trim().isEmpty());
+            } else {
+                model.addAttribute("employee", new com.example.human_resource_management.entity.Employee());
+                model.addAttribute("hasFace", false);
+            }
         return "profile";
     }
 
@@ -425,12 +408,11 @@ public class DemoPageController {
         String email = (String) session.getAttribute("email");
         if (email == null) return "redirect:/login";
 
-        // Update in employees store
-        for (Employee e : employees) {
-            if (email.equals(e.getEmail())) {
-                e.setName(displayName);
-                break;
-            }
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            user.getEmployee().setFullName(displayName);
+            user.getEmployee().setPhone(phone);
+            employeeRepository.save(user.getEmployee());
         }
 
         // Update in session
@@ -442,20 +424,87 @@ public class DemoPageController {
     public String management(Model model, HttpSession session) {
         if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "management");
-        model.addAttribute("employees", employees);
+        List<com.example.human_resource_management.entity.Employee> dbEmployees = employeeRepository.findAll();
+        List<Map<String, Object>> uiEmployees = new ArrayList<>();
+        for (com.example.human_resource_management.entity.Employee e : dbEmployees) {
+            String roleStr = "Employee";
+            String emailStr = "";
+            User u = userRepository.findByEmployee(e).orElse(null);
+            if (u != null) {
+                roleStr = u.getRole().getName().replace("ROLE_", "");
+                emailStr = u.getEmail();
+            }
+            uiEmployees.add(row(
+                "id", String.valueOf(e.getId()),
+                "name", e.getFullName(),
+                "email", emailStr,
+                "role", roleStr,
+                "status", "Active",
+                "department", e.getDepartment() != null ? e.getDepartment().getName() : ""
+            ));
+        }
+        model.addAttribute("employees", uiEmployees);
         return "management";
     }
 
     @PostMapping("/management/add")
     public String addEmployee(@RequestParam String name, @RequestParam String email, @RequestParam String role, @RequestParam String department) {
-        String newId = "EMP00" + (employees.size() + 1);
-        employees.add(new Employee(newId, name, email, role, "Active", department));
+        // Create DB Employee
+        com.example.human_resource_management.entity.Employee dbEmp = new com.example.human_resource_management.entity.Employee();
+        dbEmp.setFullName(name);
+        
+        // Find or create department
+        Department dept = departmentRepository.findAll().stream().filter(d -> d.getName().equalsIgnoreCase(department)).findFirst().orElse(null);
+        if (dept == null) {
+            dept = new Department();
+            dept.setName(department);
+            dept = departmentRepository.save(dept);
+        }
+        dbEmp.setDepartment(dept);
+        dbEmp = employeeRepository.save(dbEmp);
+        
+        // Create DB User
+        User dbUser = new User();
+        String username = email.split("@")[0];
+        // Ensure unique username
+        if (userRepository.existsByUsername(username)) {
+            username = username + System.currentTimeMillis();
+        }
+        dbUser.setUsername(username);
+        dbUser.setEmail(email);
+        dbUser.setPassword(passwordEncoder.encode("123456"));
+        
+        String roleName = "ROLE_" + role.toUpperCase();
+        Role dbRole = roleRepository.findByName(roleName).orElse(null);
+        if (dbRole == null) {
+            dbRole = new Role();
+            dbRole.setName(roleName);
+            dbRole = roleRepository.save(dbRole);
+        }
+        dbUser.setRole(dbRole);
+        dbUser.setEmployee(dbEmp);
+        dbUser.setActive(true);
+        userRepository.save(dbUser);
+        
         return "redirect:/management";
     }
 
     @PostMapping("/management/delete")
     public String deleteEmployee(@RequestParam String id) {
-        employees.removeIf(e -> id.equals(e.getId()));
+        try {
+            Long empId = Long.parseLong(id);
+            // Delete associated user first
+            com.example.human_resource_management.entity.Employee e = employeeRepository.findById(empId).orElse(null);
+            if (e != null) {
+                User u = userRepository.findByEmployee(e).orElse(null);
+                if (u != null) {
+                    userRepository.delete(u);
+                }
+                employeeRepository.delete(e);
+            }
+        } catch (NumberFormatException ex) {
+            // ignore
+        }
         return "redirect:/management";
     }
 
@@ -463,16 +512,28 @@ public class DemoPageController {
     public String settings(Model model, HttpSession session) {
         if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "settings");
-        model.addAttribute("settings", settings);
+        
+        SystemSetting checkInTime = systemSettingRepository.findById("checkInTime").orElse(new SystemSetting("checkInTime", "08:00"));
+        SystemSetting checkOutTime = systemSettingRepository.findById("checkOutTime").orElse(new SystemSetting("checkOutTime", "17:30"));
+        SystemSetting gpsRadius = systemSettingRepository.findById("gpsRadius").orElse(new SystemSetting("gpsRadius", "200"));
+        SystemSetting faceAuth = systemSettingRepository.findById("faceAuth").orElse(new SystemSetting("faceAuth", "true"));
+        
+        Map<String, Object> settingsMap = new HashMap<>();
+        settingsMap.put("checkInTime", checkInTime.getValue());
+        settingsMap.put("checkOutTime", checkOutTime.getValue());
+        settingsMap.put("gpsRadius", gpsRadius.getValue());
+        settingsMap.put("faceAuth", Boolean.parseBoolean(faceAuth.getValue()));
+        model.addAttribute("settings", settingsMap);
+        
         return "settings";
     }
 
     @PostMapping("/settings/update")
-    public String updateSettings(@RequestParam String checkInTime, @RequestParam String checkOutTime, @RequestParam int gpsRadius, @RequestParam(defaultValue = "false") boolean faceAuth) {
-        settings.setCheckInTime(checkInTime);
-        settings.setCheckOutTime(checkOutTime);
-        settings.setGpsRadius(gpsRadius);
-        settings.setFaceAuth(faceAuth);
+    public String updateSettings(@RequestParam String checkInTime, @RequestParam String checkOutTime, @RequestParam String gpsRadius, @RequestParam(defaultValue = "false") boolean faceAuth) {
+        systemSettingRepository.save(new SystemSetting("checkInTime", checkInTime));
+        systemSettingRepository.save(new SystemSetting("checkOutTime", checkOutTime));
+        systemSettingRepository.save(new SystemSetting("gpsRadius", gpsRadius));
+        systemSettingRepository.save(new SystemSetting("faceAuth", String.valueOf(faceAuth)));
         return "redirect:/settings";
     }
 
@@ -480,24 +541,30 @@ public class DemoPageController {
     public String approvals(Model model, HttpSession session) {
         if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
         model.addAttribute("activePage", "approvals");
-        model.addAttribute("requests", leaveRequests);
+        model.addAttribute("requests", leaveRequestRepository.findAll());
         return "approvals";
     }
 
     @PostMapping("/approvals/action")
-    public String handleApproval(@RequestParam String id, @RequestParam String action) {
-        for (LeaveRequest r : leaveRequests) {
-            if (id.equals(r.getId())) {
+    public String handleApproval(@RequestParam String id, @RequestParam String action, HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        User approverUser = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        
+        try {
+            Long reqId = Long.parseLong(id);
+            com.example.human_resource_management.entity.LeaveRequest req = leaveRequestRepository.findById(reqId).orElse(null);
+            if (req != null) {
                 if ("approve".equals(action)) {
-                    r.setStatus("Đã duyệt");
-                    r.setTone("success");
+                    req.setStatus("Đã duyệt");
                 } else {
-                    r.setStatus("Từ chối");
-                    r.setTone("danger");
+                    req.setStatus("Từ chối");
                 }
-                break;
+                if (approverUser != null) {
+                    req.setApprover(approverUser.getEmployee());
+                }
+                leaveRequestRepository.save(req);
             }
-        }
+        } catch (Exception e) {}
         return "redirect:/approvals";
     }
 
@@ -507,15 +574,122 @@ public class DemoPageController {
         if (email == null) return "redirect:/login";
         model.addAttribute("activePage", "payroll");
 
-        // Personal payroll mock data
-        List<PayrollRecord> records = List.of(
-                new PayrollRecord("06/2026", "Đã thanh toán", "success", "05/07/2026", "Lương tháng 6 thực nhận"),
-                new PayrollRecord("05/2026", "Đã thanh toán", "success", "05/06/2026", "Lương tháng 5 thực nhận"),
-                new PayrollRecord("07/2026", "Chờ xử lý", "warning", "Đang xử lý", "Lương tạm tính tháng 7")
-        );
-        model.addAttribute("records", records);
+        User user = userRepository.findByEmail(email).orElseGet(() -> userRepository.findByUsername(email).orElse(null));
+        if (user != null && user.getEmployee() != null) {
+            List<com.example.human_resource_management.entity.Payroll> records = payrollRepository.findByEmployeeIdOrderByCreatedAtDesc(user.getEmployee().getId());
+            model.addAttribute("records", records);
+        } else {
+            model.addAttribute("records", new ArrayList<>());
+        }
         return "payroll";
     }
+
+    @GetMapping("/reports")
+    public String reports(Model model, HttpSession session) {
+        String role = (String) session.getAttribute("role");
+        if (!"hr".equals(role)) return "redirect:/login";
+        model.addAttribute("activePage", "reports");
+        
+        List<Map<String, Object>> payrollReport = new ArrayList<>();
+        int i = 1;
+        List<com.example.human_resource_management.entity.Employee> employees = employeeRepository.findAll();
+        for (com.example.human_resource_management.entity.Employee e : employees) {
+            long baseSalary = e.getBaseSalary() != null ? e.getBaseSalary() : 15000000L;
+            
+            // Calculate real working days in current month
+            LocalDate now = LocalDate.now();
+            List<com.example.human_resource_management.entity.Attendance> attendances = attendanceRepository.findByEmployeeId(e.getId());
+            long attendDays = 0;
+            long penalties = 0;
+            for (com.example.human_resource_management.entity.Attendance a : attendances) {
+                if (a.getWorkDate().getMonth() == now.getMonth() && a.getWorkDate().getYear() == now.getYear()) {
+                    if ("Hợp lệ".equals(a.getStatus())) {
+                        attendDays++;
+                    } else if (a.getStatus() != null && (a.getStatus().contains("Đi muộn") || a.getStatus().contains("Về sớm"))) {
+                        attendDays++;
+                        penalties += 100000;
+                    }
+                }
+            }
+            
+            List<com.example.human_resource_management.entity.LeaveRequest> leaves = leaveRequestRepository.findByEmployeeIdOrderByCreatedAtDesc(e.getId());
+            long leaveDays = 0;
+            for (com.example.human_resource_management.entity.LeaveRequest req : leaves) {
+                if ("Đã duyệt".equals(req.getStatus()) && req.getStartDate() != null && req.getEndDate() != null && req.getStartDate().getMonth() == now.getMonth() && req.getStartDate().getYear() == now.getYear()) {
+                    leaveDays += java.time.temporal.ChronoUnit.DAYS.between(req.getStartDate(), req.getEndDate()) + 1;
+                }
+            }
+            
+            long workingDays = attendDays + leaveDays;
+            long total = (baseSalary / 22) * workingDays - penalties;
+            if (total < 0) total = 0;
+            
+            payrollReport.add(row(
+                "stt", i++,
+                "code", "EMP" + e.getId(),
+                "name", e.getFullName(),
+                "department", e.getDepartment() != null ? e.getDepartment().getName() : "",
+                "baseSalary", baseSalary,
+                "workingDays", workingDays,
+                "bonus", -penalties,
+                "total", total
+            ));
+        }
+        model.addAttribute("payrollReport", payrollReport);
+        
+        return "reports";
+    }
+
+    @PostMapping("/reports/chot-luong")
+    public String chotLuong(HttpSession session) {
+        if (!"hr".equals(session.getAttribute("role"))) return "redirect:/attendance";
+        
+        List<com.example.human_resource_management.entity.Employee> employees = employeeRepository.findAll();
+        LocalDate now = LocalDate.now();
+        String monthYear = String.format("%02d/%d", now.getMonthValue(), now.getYear());
+        
+        for (com.example.human_resource_management.entity.Employee e : employees) {
+            long baseSalary = e.getBaseSalary() != null ? e.getBaseSalary() : 15000000L;
+            List<com.example.human_resource_management.entity.Attendance> attendances = attendanceRepository.findByEmployeeId(e.getId());
+            long attendDays = 0;
+            long penalties = 0;
+            for (com.example.human_resource_management.entity.Attendance a : attendances) {
+                if (a.getWorkDate().getMonth() == now.getMonth() && a.getWorkDate().getYear() == now.getYear()) {
+                    if ("Hợp lệ".equals(a.getStatus())) {
+                        attendDays++;
+                    } else if (a.getStatus() != null && (a.getStatus().contains("Đi muộn") || a.getStatus().contains("Về sớm"))) {
+                        attendDays++;
+                        penalties += 100000;
+                    }
+                }
+            }
+            
+            List<com.example.human_resource_management.entity.LeaveRequest> leaves = leaveRequestRepository.findByEmployeeIdOrderByCreatedAtDesc(e.getId());
+            long leaveDays = 0;
+            for (com.example.human_resource_management.entity.LeaveRequest req : leaves) {
+                if ("Đã duyệt".equals(req.getStatus()) && req.getStartDate() != null && req.getEndDate() != null && req.getStartDate().getMonth() == now.getMonth() && req.getStartDate().getYear() == now.getYear()) {
+                    leaveDays += java.time.temporal.ChronoUnit.DAYS.between(req.getStartDate(), req.getEndDate()) + 1;
+                }
+            }
+            
+            long workingDays = attendDays + leaveDays;
+            long total = (baseSalary / 22) * workingDays - penalties;
+            if (total < 0) total = 0;
+            
+            com.example.human_resource_management.entity.Payroll p = payrollRepository.findByEmployeeIdAndMonthYear(e.getId(), monthYear).orElse(new com.example.human_resource_management.entity.Payroll());
+            p.setEmployee(e);
+            p.setMonthYear(monthYear);
+            p.setBaseSalary(baseSalary);
+            p.setWorkingDays((int) workingDays);
+            p.setBonus(-penalties);
+            p.setTotalSalary(total);
+            p.setStatus("Đã thanh toán");
+            payrollRepository.save(p);
+        }
+        
+        return "redirect:/reports";
+    }
+
 
     private Map<String, Object> metric(String l, String v, String n, String t) { return row("label", l, "value", v, "note", n, "tone", t); }
     private Map<String, Object> row(Object... values) {

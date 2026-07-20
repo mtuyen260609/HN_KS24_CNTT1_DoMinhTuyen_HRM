@@ -118,19 +118,19 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="h : ${history}">
-                                        <td th:text="${h.date}" style="font-weight:600">Date</td>
-                                        <td th:text="${h.inTime}">In</td>
-                                        <td th:text="${h.outTime == '' ? '--:--' : h.outTime}">Out</td>
-                                        <td th:text="${h.gps}">GPS</td>
+                                        <td th:text="${#temporals.format(h.workDate, 'dd/MM/yyyy')}" style="font-weight:600">Date</td>
+                                        <td th:text="${h.checkInTime != null ? #temporals.format(h.checkInTime, 'HH:mm') : '--:--'}">In</td>
+                                        <td th:text="${h.checkOutTime != null ? #temporals.format(h.checkOutTime, 'HH:mm') : '--:--'}">Out</td>
+                                        <td th:text="${h.checkInLocation != null ? h.checkInLocation : 'N/A'}">GPS</td>
                                         <td>
-                                            <button th:if="${h.selfie != ''}" th:onclick="showSelfie([[${h.selfie}]])" class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px; height: auto;">
+                                            <button th:if="${h.checkInPhotoUrl != null && h.checkInPhotoUrl != ''}" th:onclick="showSelfie([[${h.checkInPhotoUrl}]])" class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px; height: auto;">
                                                 <i class="ph-light ph-eye"></i> Xem ảnh
                                             </button>
-                                            <span th:if="${h.selfie == ''}" style="color: var(--text-muted); font-size: 12px; font-style: italic;">Không có ảnh</span>
+                                            <span th:if="${h.checkInPhotoUrl == null || h.checkInPhotoUrl == ''}" style="color: var(--text-muted); font-size: 12px; font-style: italic;">Không có ảnh</span>
                                         </td>
                                         <td>
                                             <span class="metric-badge" 
-                                                  th:classappend="${#strings.contains(h.status, 'Hợp lệ') ? 'badge-success' : 'badge-danger'}" 
+                                                  th:classappend="${h.status != null && #strings.contains(h.status, 'Hợp lệ') ? 'badge-success' : 'badge-danger'}" 
                                                   th:text="${h.status}">Status</span>
                                         </td>
                                     </tr>
@@ -165,6 +165,7 @@
     <!-- Canvas for photo capture -->
     <canvas id="photo-canvas" width="640" height="480" style="display: none;"></canvas>
 
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script th:inline="javascript">
         // Real-time Clock
         function updateClock() {
@@ -178,20 +179,30 @@
         // WebRTC Webcam logic
         const video = document.getElementById('webcam');
         const sim = document.getElementById('camera-sim');
-        let imageCapture = null;
         let streamActive = false;
 
-        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
-            .then(stream => {
+        async function initCameraAndModels() {
+            try {
+                // Tải model FaceAPI
+                sim.innerHTML = '<i class="ph-light ph-spinner" style="font-size: 32px; animation: spin 1s linear infinite;"></i><span style="font-size: 13px; margin-top: 8px;">Đang tải AI Model...</span>';
+                await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+
+                // Bật camera
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
                 video.srcObject = stream;
                 video.classList.remove('hidden');
                 sim.classList.add('hidden');
                 streamActive = true;
-            })
-            .catch(err => {
-                console.warn("Camera blocked or not available. Using high-end simulator.", err);
-                sim.innerHTML = '<i class="ph-light ph-shield-check" style="color: var(--primary); font-size: 48px; animation: pulse 2s infinite;"></i><span style="font-size: 13px; color: var(--text-main); font-weight: 500;">HỆ THỐNG GIẢ LẬP FACEID TỰ ĐỘNG</span><span style="font-size: 11px; color: var(--text-muted);">Sẵn sàng chấm công ảo</span>';
-            });
+            } catch (err) {
+                console.error("Lỗi khi khởi tạo camera hoặc model:", err);
+                sim.innerHTML = '<i class="ph-light ph-warning-circle" style="color: var(--danger); font-size: 32px;"></i><span style="font-size: 13px; margin-top: 8px; color: var(--danger);">Không thể khởi tạo Camera/AI</span>';
+            }
+        }
+        
+        // Khởi động khi tải trang
+        window.addEventListener('load', initCameraAndModels);
 
         // Geolocation logic
         const gpsText = document.getElementById('gps-text');
@@ -209,44 +220,58 @@
         );
 
         // Capture photo and submit
-        function performCheck(action) {
-            document.getElementById('form-gps-in').value = currentGps;
-            
-            if (streamActive) {
-                // Real capture from webcam stream
-                const canvas = document.getElementById('photo-canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const dataURL = canvas.toDataURL('image/jpeg');
-                document.getElementById('form-selfie-in').value = dataURL;
-            } else {
-                // Generate a beautiful simulated photo base64
-                // A dark canvas placeholder showing face coordinates
-                const canvas = document.getElementById('photo-canvas');
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#0f0f12';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw face contour lines in neon cyan
-                ctx.strokeStyle = '#00e5ff';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(320, 240, 120, 0, Math.PI * 2);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#00e5ff';
-                ctx.font = '16px monospace';
-                ctx.fillText("SIMULATED FACE MATCHING", 220, 240);
-                ctx.fillText("GPS MATCH: OK", 260, 270);
-                
-                const dataURL = canvas.toDataURL('image/jpeg');
-                document.getElementById('form-selfie-in').value = dataURL;
+        async function performCheck(action) {
+            if (!streamActive) {
+                alert("Camera hoặc AI Models chưa sẵn sàng!");
+                return;
             }
+            
+            // UI Button state
+            const btn = (action === 'checkin') ? document.querySelector('#checkin-form button') : document.querySelector('#checkout-form button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ph-light ph-spinner" style="animation: spin 1s linear infinite"></i> ĐANG XÁC THỰC...';
+            btn.disabled = true;
 
-            document.getElementById('checkin-form').submit();
+            try {
+                // Nhận diện khuôn mặt từ luồng video
+                const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+                if (!detection) {
+                    alert("Không nhận diện được khuôn mặt. Vui lòng nhìn thẳng vào Camera và đủ ánh sáng!");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const faceDescriptorArray = Array.from(detection.descriptor);
+
+                // Gửi API RESTful
+                const endpoint = (action === 'checkin') ? '/api/attendance/checkin' : '/api/attendance/checkout';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        faceDescriptor: faceDescriptorArray,
+                        location: currentGps
+                    })
+                });
+
+                if (response.ok) {
+                    alert((action === 'checkin' ? "Check-in" : "Check-out") + " thành công!");
+                    window.location.reload();
+                } else {
+                    const errMsg = await response.text();
+                    alert("Lỗi: " + errMsg);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Đã xảy ra lỗi hệ thống khi phân tích.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
-        // Modal triggers
+        // Fix modal behavior
         function showSelfie(base64Data) {
             const modal = document.getElementById('selfie-modal');
             const img = document.getElementById('modal-img');
@@ -254,11 +279,6 @@
             modal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('selfie-modal').add('hidden'); // wait, let's make it classList.add
-        }
-        
-        // Correcting closeModal implementation
         function closeModal() {
             document.getElementById('selfie-modal').classList.add('hidden');
         }

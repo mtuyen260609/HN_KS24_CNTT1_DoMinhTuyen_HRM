@@ -73,8 +73,8 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="h : ${history}">
-                                        <td th:text="${h.type}" style="font-weight:600">Type</td>
-                                        <td th:text="${h.startDate}">Date</td>
+                                        <td th:text="'-'" style="font-weight:600">Type</td>
+                                        <td th:text="${#temporals.format(h.startDate, 'dd/MM/yyyy') + ' - ' + #temporals.format(h.endDate, 'dd/MM/yyyy')}">Date</td>
                                         <td th:text="${h.reason}">Reason</td>
                                         <td>
                                             <span class="metric-badge" th:classappend="'badge-'+${h.tone}" th:text="${h.status}">Status</span>

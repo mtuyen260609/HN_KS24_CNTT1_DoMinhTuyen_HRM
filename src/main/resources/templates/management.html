@@ -51,6 +51,9 @@
                                             <span class="metric-badge badge-success" th:text="${e.status}">Active</span>
                                         </td>
                                         <td style="text-align: right;">
+                                            <button type="button" class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px; margin-right: 4px;" th:attr="onclick=|openEditModal('${e.id}', '${e.name}', '${e.email}', '${e.department}', '${e.role}')|">
+                                                <i class="ph-light ph-pencil-simple"></i> Sửa
+                                            </button>
                                             <form th:action="@{/management/delete}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xoá nhân viên này khỏi hệ thống?')">
                                                 <input type="hidden" name="id" th:value="${e.id}">
                                                 <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">
@@ -118,12 +121,69 @@
         </div>
     </div>
     
+    <!-- Edit Employee Modal Overlay -->
+    <div id="edit-employee-modal" class="modal-overlay hidden" onclick="closeEditModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin-bottom: 24px; justify-content: space-between; display: flex;">
+                <span><i class="ph-light ph-pencil-simple" style="color: var(--primary);"></i> Sửa thông tin nhân sự</span>
+                <button onclick="closeEditModal()" class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px; border:none; background:none; cursor:pointer;"><i class="ph-light ph-x" style="font-size: 18px;"></i></button>
+            </h3>
+            
+            <form th:action="@{/management/update}" method="post">
+                <input type="hidden" name="id" id="edit-id">
+                <div class="input-group">
+                    <label>Họ và tên nhân viên</label>
+                    <input type="text" name="name" id="edit-name" required>
+                </div>
+                <div class="input-group">
+                    <label>Địa chỉ Email doanh nghiệp</label>
+                    <input type="email" name="email" id="edit-email" required readonly style="background: rgba(0,0,0,0.1); cursor: not-allowed;">
+                </div>
+                <div class="grid grid-cols-2" style="gap: 16px;">
+                    <div class="input-group">
+                        <label>Phòng ban</label>
+                        <select name="department" id="edit-department" required>
+                            <option value="Kỹ thuật">Kỹ thuật</option>
+                            <option value="Kinh doanh">Kinh doanh</option>
+                            <option value="Nhân sự">Nhân sự</option>
+                            <option value="Tài chính">Tài chính</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Quyền hệ thống</label>
+                        <select name="role" id="edit-role" required>
+                            <option value="Employee">Nhân viên (Employee)</option>
+                            <option value="Manager">Quản lý (Manager)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeEditModal()" class="btn btn-ghost">Huỷ bỏ</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <script>
         function openAddModal() {
             document.getElementById('add-employee-modal').classList.remove('hidden');
         }
         function closeAddModal() {
             document.getElementById('add-employee-modal').classList.add('hidden');
+        }
+        
+        function openEditModal(id, name, email, department, role) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-email').value = email;
+            document.getElementById('edit-department').value = department;
+            document.getElementById('edit-role').value = role;
+            document.getElementById('edit-employee-modal').classList.remove('hidden');
+        }
+        function closeEditModal() {
+            document.getElementById('edit-employee-modal').classList.add('hidden');
         }
     </script>
 </body>

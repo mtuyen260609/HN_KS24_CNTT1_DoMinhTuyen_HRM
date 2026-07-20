@@ -40,9 +40,9 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="r : ${records}">
-                                        <td th:text="${r.period}" style="font-weight: 700; color: var(--text-main);">06/2026</td>
-                                        <td th:text="${r.payday}">05/07/2026</td>
-                                        <td th:text="${r.note}">Lương tháng 6 thực nhận</td>
+                                        <td th:text="${r.monthYear}" style="font-weight: 700; color: var(--text-main);">06/2026</td>
+                                        <td th:text="${#temporals.format(r.createdAt, 'dd/MM/yyyy')}">05/07/2026</td>
+                                        <td th:text="'Tổng nhận: ' + ${#numbers.formatDecimal(r.totalSalary, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Lương tháng 6 thực nhận</td>
                                         <td>
                                             <span class="metric-badge" th:classappend="'badge-'+${r.tone}" th:text="${r.status}">Đã thanh toán</span>
                                         </td>

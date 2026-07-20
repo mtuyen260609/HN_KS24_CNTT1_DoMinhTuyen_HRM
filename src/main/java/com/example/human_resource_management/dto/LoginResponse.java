@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class LoginResponse {
     private String token;
+    @Builder.Default
     private String type = "Bearer";
     private Long id;
     private String username;

@@ -2,65 +2,206 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/shell :: html_head('Hồ sơ cá nhân')}"></head>
 <body>
-    <div class="app-shell">
-        <aside th:replace="~{fragments/shell :: sidebar('profile')}"></aside>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/shell :: sidebar(${activePage})}"></div>
+        
+        <!-- Main Content -->
         <main class="main-content">
-            <header th:replace="~{fragments/shell :: topbar('Hồ sơ của tôi')}"></header>
-            <div class="container" style="max-width: 900px;">
-                
-                <div class="card-outer">
-                    <div class="card-inner">
-                        <!-- Profile Header -->
-                        <div style="display:flex; gap:32px; align-items:center; margin-bottom:40px; padding-bottom:32px; border-bottom:1px solid var(--border);">
-                            <div class="avatar" style="width:80px; height:80px; font-size:32px;" th:text="${#strings.substring(ui.displayName,0,1)}">U</div>
+            <div th:replace="~{fragments/shell :: topbar('Hồ sơ cá nhân')}"></div>
+
+            <div class="content-wrapper">
+                <div class="page-header" style="margin-bottom: 30px;">
+                    <h2 style="font-size: 24px; font-weight: 700; color: #1e293b;">Thông tin tài khoản</h2>
+                    <p style="color: #64748b; margin-top: 5px;">Quản lý thông tin cá nhân và thiết lập bảo mật</p>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Basic Info Card -->
+                    <div class="card" style="padding: 24px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Thông tin cơ bản</h3>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
                             <div>
-                                <h2 style="margin:0" th:text="${ui.displayName}">Name</h2>
-                                <p style="color:var(--primary); font-weight:600; text-transform:uppercase; font-size:12px; letter-spacing:1px; margin-top:4px;" th:text="${ui.role == 'manager' ? 'Quyền quản trị viên' : 'Nhân viên công ty'}">Role</p>
-                                <p style="color:var(--text-muted); font-size:13px; margin-top:2px;" th:text="${ui.email}">Email</p>
+                                <label style="display: block; font-size: 14px; color: #64748b; margin-bottom: 4px;">Họ và tên</label>
+                                <div style="font-weight: 500; font-size: 16px;" th:text="${employee.fullName}"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #64748b; margin-bottom: 4px;">Email</label>
+                                <div style="font-weight: 500; font-size: 16px;" th:text="${user.email}"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #64748b; margin-bottom: 4px;">Phòng ban</label>
+                                <div style="font-weight: 500; font-size: 16px;" th:text="${employee.department != null ? employee.department.name : 'Chưa phân bổ'}"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #64748b; margin-bottom: 4px;">Vai trò hệ thống</label>
+                                <div style="font-weight: 500; font-size: 16px;" th:text="${user.role.name == 'ROLE_HR' ? 'Quản trị viên (HR)' : 'Nhân viên'}"></div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Face Registration Card -->
+                    <div class="card" style="padding: 24px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            Xác thực khuôn mặt
+                            <span th:if="${hasFace}" class="badge" style="background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 99px; font-size: 12px; font-weight: 600;">Đã đăng ký</span>
+                            <span th:unless="${hasFace}" class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 8px; border-radius: 99px; font-size: 12px; font-weight: 600;">Chưa đăng ký</span>
+                        </h3>
                         
-                        <!-- Editable Information Form -->
-                        <form th:action="@{/profile/update}" method="post">
-                            <div class="grid grid-cols-2" style="gap: 16px 24px;">
-                                <div class="input-group">
-                                    <label>Họ và tên</label>
-                                    <input type="text" name="displayName" th:value="${ui.displayName}" required>
-                                </div>
-                                <div class="input-group">
-                                    <label>Số điện thoại liên lạc</label>
-                                    <input type="text" name="phone" value="0987 654 321" required>
-                                </div>
-                                <div class="input-group">
-                                    <label>Địa chỉ Email (Đăng nhập)</label>
-                                    <input type="email" th:value="${ui.email}" readonly>
-                                </div>
-                                <div class="input-group">
-                                    <label>Phòng ban trực thuộc</label>
-                                    <input type="text" th:value="${employee.department}" readonly>
-                                </div>
-                                <div class="input-group">
-                                    <label>Mã số nhân viên</label>
-                                    <input type="text" th:value="${employee.id}" readonly>
-                                </div>
-                                <div class="input-group">
-                                    <label>Trạng thái tài khoản</label>
-                                    <input type="text" th:value="${employee.status}" readonly>
-                                </div>
+                        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
+                            Hệ thống sử dụng Face-API cục bộ để nhận diện khuôn mặt mà không gửi hình ảnh của bạn đi nơi khác. Dữ liệu khuôn mặt được mã hóa thành vector 128 chiều.
+                        </p>
+
+                        <div id="videoContainer" style="position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a; border-radius: 12px; overflow: hidden; margin-bottom: 16px; display: none; align-items: center; justify-content: center;">
+                            <video id="video" autoplay muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            <canvas id="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                            <div id="loadingMessage" style="position: absolute; color: white; font-weight: 500; text-align: center;">
+                                <i class="ph-light ph-spinner-gap" style="animation: spin 1s linear infinite; font-size: 24px; margin-bottom: 8px;"></i>
+                                <div>Đang tải AI Model...</div>
                             </div>
-                            
-                            <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
-                                <button type="submit" class="btn btn-primary" style="padding: 12px 32px;">
-                                    <i class="ph-light ph-floppy-disk"></i>
-                                    <span>LƯU THAY ĐỔI</span>
-                                </button>
-                            </div>
-                        </form>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button id="btnStartCamera" class="btn btn-primary" style="flex: 1; justify-content: center;" onclick="startFaceRegistration()">
+                                <i class="ph-light ph-camera"></i>
+                                <span th:text="${hasFace ? 'Cập nhật lại khuôn mặt' : 'Bắt đầu đăng ký'}">Bắt đầu</span>
+                            </button>
+                            <button id="btnCapture" class="btn btn-primary" style="flex: 1; justify-content: center; display: none; background: #059669;" onclick="captureAndSaveFace()">
+                                <i class="ph-light ph-check-circle"></i>
+                                <span>Lưu khuôn mặt này</span>
+                            </button>
+                            <button id="btnCancel" class="btn btn-ghost" style="flex: 1; justify-content: center; display: none;" onclick="stopCamera()">
+                                Hủy bỏ
+                            </button>
+                        </div>
+                        <div id="statusMsg" style="margin-top: 12px; font-size: 14px; font-weight: 500; text-align: center;"></div>
                     </div>
                 </div>
-                
             </div>
         </main>
     </div>
+
+    <!-- Load Face API from CDN -->
+    <script defer src="https://unpkg.com/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const employeeId = /*[[${employee.id}]]*/ 1;
+        /*]]>*/
+        
+        let videoEl = document.getElementById('video');
+        let canvasEl = document.getElementById('overlay');
+        let stream = null;
+        let isModelLoaded = false;
+        let faceMatcherInterval = null;
+        let currentDescriptor = null;
+
+        async function startFaceRegistration() {
+            document.getElementById('videoContainer').style.display = 'flex';
+            document.getElementById('btnStartCamera').style.display = 'none';
+            document.getElementById('btnCancel').style.display = 'flex';
+            document.getElementById('statusMsg').innerText = '';
+            document.getElementById('statusMsg').style.color = 'inherit';
+
+            try {
+                if (!isModelLoaded) {
+                    // Load models from our local static folder
+                    await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+                    await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+                    await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+                    isModelLoaded = true;
+                }
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                // Start webcam
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                videoEl.srcObject = stream;
+                
+                videoEl.onloadedmetadata = () => {
+                    canvasEl.width = videoEl.videoWidth;
+                    canvasEl.height = videoEl.videoHeight;
+                    startTracking();
+                };
+
+            } catch (err) {
+                console.error("Camera/Model error:", err);
+                document.getElementById('loadingMessage').innerHTML = 'Lỗi truy cập Camera hoặc Models.<br>' + err.message;
+            }
+        }
+
+        function startTracking() {
+            document.getElementById('btnCapture').style.display = 'flex';
+            
+            faceMatcherInterval = setInterval(async () => {
+                const detection = await faceapi.detectSingleFace(videoEl)
+                                            .withFaceLandmarks()
+                                            .withFaceDescriptor();
+                
+                const ctx = canvasEl.getContext('2d');
+                ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+                
+                if (detection) {
+                    const dims = faceapi.matchDimensions(canvasEl, videoEl, true);
+                    const resizedResult = faceapi.resizeResults(detection, dims);
+                    faceapi.draw.drawDetections(canvasEl, resizedResult);
+                    faceapi.draw.drawFaceLandmarks(canvasEl, resizedResult);
+                    
+                    // Save the latest descriptor in memory to save it when user clicks capture
+                    currentDescriptor = detection.descriptor;
+                } else {
+                    currentDescriptor = null;
+                }
+            }, 200);
+        }
+
+        async function captureAndSaveFace() {
+            if (!currentDescriptor) {
+                const msg = document.getElementById('statusMsg');
+                msg.innerText = "Không tìm thấy khuôn mặt rõ ràng! Vui lòng nhìn thẳng vào camera.";
+                msg.style.color = "#dc2626";
+                return;
+            }
+            
+            // Send to backend
+            try {
+                const response = await fetch(`/api/employees/${employeeId}/face`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Array.from(currentDescriptor))
+                });
+                
+                if (response.ok) {
+                    const msg = document.getElementById('statusMsg');
+                    msg.innerText = "Lưu khuôn mặt thành công!";
+                    msg.style.color = "#059669";
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error("Lỗi Server " + response.status);
+                }
+            } catch (err) {
+                const msg = document.getElementById('statusMsg');
+                msg.innerText = "Lỗi khi lưu: " + err.message;
+                msg.style.color = "#dc2626";
+            }
+        }
+
+        function stopCamera() {
+            if (faceMatcherInterval) clearInterval(faceMatcherInterval);
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('videoContainer').style.display = 'none';
+            document.getElementById('btnStartCamera').style.display = 'flex';
+            document.getElementById('btnCapture').style.display = 'none';
+            document.getElementById('btnCancel').style.display = 'none';
+            currentDescriptor = null;
+        }
+    </script>
+    <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
 </body>
 </html>

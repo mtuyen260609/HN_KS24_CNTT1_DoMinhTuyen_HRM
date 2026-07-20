@@ -14,8 +14,8 @@
     <aside th:fragment="sidebar(activePage)" class="sidebar">
         <div class="brand">HRM PRO</div>
         <nav class="nav-group">
-            <!-- Quản lý (Manager) -->
-            <th:block th:if="${ui.manager}">
+            <!-- Quản lý (HR/Manager) -->
+            <th:block th:if="${ui.hr}">
                 <a href="/dashboard" class="nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
                     <i class="ph-light ph-chart-pie-slice"></i>
                     <span>Dashboard</span>
@@ -31,6 +31,10 @@
                 <a href="/settings" class="nav-item" th:classappend="${activePage == 'settings' ? 'active' : ''}">
                     <i class="ph-light ph-gear-six"></i>
                     <span>Cấu hình hệ thống</span>
+                </a>
+                <a href="/reports" class="nav-item" th:classappend="${activePage == 'reports' ? 'active' : ''}">
+                    <i class="ph-light ph-chart-bar"></i>
+                    <span>Báo cáo & Thống kê</span>
                 </a>
             </th:block>
 
@@ -71,7 +75,7 @@
         <div class="user-profile">
             <div class="user-info">
                 <span class="user-name" th:text="${ui.displayName}">Name</span>
-                <span class="user-role" th:text="${ui.role == 'manager' ? 'Quản lý' : 'Nhân viên'}">Role</span>
+                <span class="user-role" th:text="${ui.role == 'hr' ? 'Quản lý' : 'Nhân viên'}">Role</span>
             </div>
             <div class="avatar" th:text="${#strings.substring(ui.displayName,0,1)}">U</div>
         </div>

@@ -18,23 +18,23 @@
 | HRM-TASK-014 | SRS | Use Case | Đặc tả UC-10 | Bảng lương (hiển thị trạng thái scaffold). | 2026-07-09 | 2026-07-09 | Medium | 100% |
 | HRM-TASK-015 | Design | Database | Thiết kế ERD (No Enum) | Xác định Entity: User, Role, Employee, Attendance... | 2026-07-09 | 2026-07-09 | High | 100% |
 | HRM-TASK-016 | Design | UI/UX | Thiết kế wireframe | Dashboard, Attendance panel, Leave panel. | 2026-07-10 | 2026-07-10 | High | 100% |
-| HRM-TASK-017 | Frontend | Setup | Khởi tạo Frontend SPA | Chuẩn bị tích hợp API Backend Spring Boot. | 2026-07-10 | 2026-07-10 | High | 0 |
-| HRM-TASK-018 | Frontend | Auth | Làm UI Login | Giao diện login (email, pass), bắt lỗi role. | 2026-07-10 | 2026-07-10 | High | 0 |
-| HRM-TASK-019 | Frontend | Layout | Làm layout chung | Sidebar phân quyền rành mạch HR và Employee. | 2026-07-10 | 2026-07-10 | High | 0 |
-| HRM-TASK-020 | Frontend | Dashboard | Làm UI Dashboard | Hiển thị số liệu, cảnh báo (Đi muộn, LATE). | 2026-07-10 | 2026-07-10 | High | 0 |
-| HRM-TASK-021 | Frontend | Management | Trang Quản lý | Danh sách Nhân viên & Phòng ban (Chỉ cho HR). | 2026-07-13 | 2026-07-13 | Medium | 0 |
-| HRM-TASK-022 | Frontend | Profile | Làm trang Hồ sơ | Hiển thị thông tin cá nhân của Employee. | 2026-07-13 | 2026-07-13 | High | 0 |
-| HRM-TASK-023 | Frontend | Settings | Làm trang Cấu hình | Form nhập giờ vào ca, giờ ra ca, nghỉ trưa. | 2026-07-13 | 2026-07-13 | Medium | 0 |
-| HRM-TASK-024 | Frontend | Attendance | Làm trang Chấm công | Giao diện Camera chụp selfie và lấy tọa độ GPS. | 2026-07-13 | 2026-07-13 | High | 0 |
-| HRM-TASK-025 | Frontend | Leave | Làm trang Nghỉ phép | Form tạo đơn, hiển thị số phép dư. | 2026-07-14 | 2026-07-14 | High | 0 |
-| HRM-TASK-026 | Frontend | Approval | Trang Duyệt phép | Danh sách chờ duyệt, Nút Approve/Reject. | 2026-07-14 | 2026-07-14 | High | 0 |
-| HRM-TASK-027 | Frontend | Payroll | Làm trang Bảng lương | Giao diện hiển thị trạng thái lương (MVP). | 2026-07-14 | 2026-07-14 | Medium | 0 |
+| HRM-TASK-017 | Frontend | Setup | Khởi tạo Frontend SPA | Chuẩn bị tích hợp API Backend Spring Boot. | 2026-07-10 | 2026-07-10 | High | 100% |
+| HRM-TASK-018 | Frontend | Auth | Làm UI Login | Giao diện login (email, pass), bắt lỗi role. | 2026-07-10 | 2026-07-10 | High | 100% |
+| HRM-TASK-019 | Frontend | Layout | Làm layout chung | Sidebar phân quyền rành mạch HR và Employee. | 2026-07-10 | 2026-07-10 | High | 100% |
+| HRM-TASK-020 | Frontend | Dashboard | Làm UI Dashboard | Hiển thị số liệu, cảnh báo (Đi muộn, LATE). | 2026-07-10 | 2026-07-10 | High | 100% |
+| HRM-TASK-021 | Frontend | Management | Trang Quản lý | Danh sách Nhân viên & Phòng ban (Chỉ cho HR). | 2026-07-13 | 2026-07-13 | Medium | 100% |
+| HRM-TASK-022 | Frontend | Profile | Làm trang Hồ sơ | Hiển thị thông tin cá nhân của Employee. | 2026-07-13 | 2026-07-13 | High | 100% |
+| HRM-TASK-023 | Frontend | Settings | Làm trang Cấu hình | Form nhập giờ vào ca, giờ ra ca, nghỉ trưa. | 2026-07-13 | 2026-07-13 | Medium | 100% |
+| HRM-TASK-024 | Frontend | Attendance | Làm trang Chấm công | Giao diện Camera chụp selfie và lấy tọa độ GPS. | 2026-07-13 | 2026-07-13 | High | 100% |
+| HRM-TASK-025 | Frontend | Leave | Làm trang Nghỉ phép | Form tạo đơn, hiển thị số phép dư. | 2026-07-14 | 2026-07-14 | High | 100% |
+| HRM-TASK-026 | Frontend | Approval | Trang Duyệt phép | Danh sách chờ duyệt, Nút Approve/Reject. | 2026-07-14 | 2026-07-14 | High | 100% |
+| HRM-TASK-027 | Frontend | Payroll | Làm trang Bảng lương | Giao diện hiển thị trạng thái lương (MVP). | 2026-07-14 | 2026-07-14 | Medium | 100% |
 | HRM-TASK-028 | Backend | Setup | Khởi tạo Spring Boot | Maven, MySQL, JPA, Spring Security (JWT). | 2026-07-14 | 2026-07-14 | High | 100% |
 | HRM-TASK-029 | Backend | Entity | Code Entity (No Enum) | Cài đặt các class User, Role, Employee, Department... | 2026-07-14 | 2026-07-14 | High | 100% |
-| HRM-TASK-030 | Backend | Auth | Code Security Filter | Setup CustomUserDetails, JwtAuthFilter. | 2026-07-15 | 2026-07-15 | High | 0 |
-| HRM-TASK-031 | Backend | Auth API | Xây dựng AuthController | API đăng nhập trả về JWT Token. | 2026-07-15 | 2026-07-15 | High | 0 |
-| HRM-TASK-032 | Backend | Management | Cấu trúc Employee/Dept| Khởi tạo các API cơ bản để liên kết DB. | 2026-07-15 | 2026-07-15 | Medium | 0 |
-| HRM-TASK-033 | Backend | Settings | Xây dựng API Cấu hình | Lưu tham số HH:mm cho giờ làm việc. | 2026-07-15 | 2026-07-15 | Medium | 0 |
+| HRM-TASK-030 | Backend | Auth | Code Security Filter | Setup CustomUserDetails, JwtAuthFilter. | 2026-07-15 | 2026-07-15 | High | 100% |
+| HRM-TASK-031 | Backend | Auth API | Xây dựng AuthController | API đăng nhập trả về JWT Token. | 2026-07-15 | 2026-07-15 | High | 100% |
+| HRM-TASK-032 | Backend | Management | Cấu trúc Employee/Dept| Khởi tạo các API cơ bản để liên kết DB. | 2026-07-15 | 2026-07-15 | Medium | 100% |
+| HRM-TASK-033 | Backend | Settings | Xây dựng API Cấu hình | Lưu tham số HH:mm cho giờ làm việc. | 2026-07-15 | 2026-07-15 | Medium | 100% |
 | HRM-TASK-034 | Backend | Attendance | Logic Check-in/out | Xét trạng thái LATE, ON_TIME (> 15phút). | 2026-07-16 | 2026-07-16 | High | 0 |
 | HRM-TASK-035 | Backend | Leave API | Logic Đơn nghỉ phép | Đánh dấu PENDING, ghi nhận loại phép. | 2026-07-16 | 2026-07-16 | High | 0 |
 | HRM-TASK-036 | Backend | Approval | Logic Duyệt/Từ chối | Cập nhật APPROVED/REJECTED. | 2026-07-16 | 2026-07-16 | High | 0 |

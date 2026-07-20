@@ -27,11 +27,11 @@
                                 <tbody>
                                     <tr th:each="r : ${requests}">
                                         <td>
-                                            <div style="font-weight:600; color: var(--text-main);" th:text="${r.employeeName}">Nguyễn Văn A</div>
-                                            <div style="font-size:11px; color:var(--text-muted);" th:text="${r.employeeEmail}">email@demo.local</div>
+                                            <div style="font-weight:600; color: var(--text-main);" th:text="${r.employee.fullName}">Nguyễn Văn A</div>
+                                            <div style="font-size:11px; color:var(--text-muted);" th:text="${r.employee.department != null ? r.employee.department.name : ''}">Phòng ban</div>
                                         </td>
-                                        <td th:text="${r.type}">Nghỉ phép năm</td>
-                                        <td th:text="${r.startDate}">15/07 - 17/07</td>
+                                        <td th:text="'-'">Nghỉ phép năm</td>
+                                        <td th:text="${#temporals.format(r.startDate, 'dd/MM/yyyy') + ' - ' + #temporals.format(r.endDate, 'dd/MM/yyyy')}">15/07 - 17/07</td>
                                         <td th:text="${r.reason}">Việc gia đình</td>
                                         <td>
                                             <span class="metric-badge" th:classappend="'badge-'+${r.tone}" th:text="${r.status}">Status</span>

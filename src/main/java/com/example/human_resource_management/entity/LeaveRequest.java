@@ -55,4 +55,10 @@ public class LeaveRequest {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public String getTone() {
+        if ("Đã duyệt".equals(status)) return "success";
+        if ("Từ chối".equals(status)) return "danger";
+        return "warning";
+    }
 }

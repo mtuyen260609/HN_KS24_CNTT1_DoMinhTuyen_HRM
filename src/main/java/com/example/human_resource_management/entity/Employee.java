@@ -36,11 +36,17 @@ public class Employee {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "face_descriptor", columnDefinition = "TEXT")
+    private String faceDescriptor;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "base_salary")
+    private Long baseSalary;
     
     @PrePersist
     protected void onCreate() {

@@ -34,6 +34,7 @@ public class User {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
+    @Builder.Default
     @Column(name = "is_active")
     private boolean isActive = true;
 

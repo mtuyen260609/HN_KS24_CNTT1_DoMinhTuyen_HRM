@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/shell :: html_head('Báo cáo & Thống kê')}"></head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/shell :: sidebar(${activePage})}"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:replace="~{fragments/shell :: topbar('Báo cáo & Thống kê')}"></div>
+
+            <div class="content-wrapper">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h2 style="font-size: 24px; font-weight: 700; color: #1e293b;">Bảng Lương Tháng</h2>
+                        <p style="color: #64748b; margin-top: 4px;">Dữ liệu tổng hợp chấm công và tính lương</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <form th:action="@{/reports/chot-luong}" method="post" style="margin: 0;">
+                            <button type="submit" class="btn btn-primary" style="background: var(--primary);">
+                                <i class="ph-light ph-check-circle" style="font-size: 18px;"></i>
+                                Chốt lương tháng
+                            </button>
+                        </form>
+                        <button class="btn btn-primary" style="background: #10b981;" onclick="exportToExcel()">
+                            <i class="ph-light ph-file-xls" style="font-size: 18px;"></i>
+                            Xuất Excel
+                        </button>
+                        <button class="btn btn-primary" style="background: #ef4444;" onclick="exportToPDF()">
+                            <i class="ph-light ph-file-pdf" style="font-size: 18px;"></i>
+                            Xuất PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card" style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+                    <table class="table" id="reportTable" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-align: left;">
+                                <th style="padding: 16px; font-weight: 600; color: #475569;">STT</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569;">Mã NV</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569;">Họ Tên</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569;">Phòng ban</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569; text-align: right;">Lương cơ bản (VNĐ)</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569; text-align: center;">Ngày công</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569; text-align: right;">Phụ cấp/Thưởng (VNĐ)</th>
+                                <th style="padding: 16px; font-weight: 600; color: #475569; text-align: right;">Tổng nhận (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${payrollReport}" style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="padding: 16px;" th:text="${r.stt}"></td>
+                                <td style="padding: 16px; font-weight: 500;" th:text="${r.code}"></td>
+                                <td style="padding: 16px; font-weight: 500;" th:text="${r.name}"></td>
+                                <td style="padding: 16px;" th:text="${r.department}"></td>
+                                <td style="padding: 16px; text-align: right;" th:text="${#numbers.formatDecimal(r.baseSalary, 0, 'COMMA', 0, 'POINT')}"></td>
+                                <td style="padding: 16px; text-align: center;" th:text="${r.workingDays}"></td>
+                                <td style="padding: 16px; text-align: right;" th:text="${#numbers.formatDecimal(r.bonus, 0, 'COMMA', 0, 'POINT')}"></td>
+                                <td style="padding: 16px; text-align: right; font-weight: 700; color: #059669;" th:text="${#numbers.formatDecimal(r.total, 0, 'COMMA', 0, 'POINT')}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    
+    <!-- jsPDF and AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        function exportToExcel() {
+            var table = document.getElementById("reportTable");
+            var wb = XLSX.utils.table_to_book(table, {sheet: "Báo cáo Lương"});
+            XLSX.writeFile(wb, "Bao_Cao_Luong_Thang.xlsx");
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+            
+            // Add custom font for vietnamese (optional, using default Helvetica might drop some accents, 
+            // but for a quick demo it's acceptable. We will rely on autoTable standard features)
+            
+            doc.text("BÁO CÁO LƯƠNG THÁNG", 14, 15);
+            doc.setFontSize(11);
+            doc.text("Công ty: Demo HRM", 14, 22);
+
+            doc.autoTable({
+                html: '#reportTable',
+                startY: 28,
+                styles: { font: 'helvetica', fontSize: 10 },
+                theme: 'grid',
+                headStyles: { fillColor: [71, 85, 105] }
+            });
+
+            doc.save('Bao_Cao_Luong_Thang.pdf');
+        }
+    </script>
+</body>
+</html>
